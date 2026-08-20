@@ -48,7 +48,6 @@ struct ARView: View {
     
     // MARK: - View Model
     @State var arViewModel: ARViewModel = .init()
-    @State var detailCardViewModel: DetailCardViewModel = .init()
     
     // MARK: - 게임 세팅을 위한 프로퍼티
     /// 최소 평면 사이즈
@@ -90,13 +89,8 @@ struct ARView: View {
                 case .scanning, .scanned, .portalCreated:
                     CheckScanOverlay(arViewModel: arViewModel, allPlanesDetected: allPlanesDetected)
                 case .playing:
-                    if !arViewModel.showingWordDetailCard {
-                        PlayingGameOverlay(arViewModel: arViewModel)
-                            .environmentObject(container)
-                    } else if let currentSession = selectedGameSession {
-                        OnShowingCardOverlay(arViewModel: arViewModel, detailCardViewModel: detailCardViewModel, currentSession: currentSession)
-                            .environmentObject(container)
-                    }
+                    PlayingGameOverlay(arViewModel: arViewModel)
+                        .environmentObject(container)
                 case .finished:
                     if let selectedGameSession {
                         FinishedOverlay(gameSessionModel: selectedGameSession, currentLifeCounts: arViewModel.currentLifeCounts)
@@ -106,11 +100,6 @@ struct ARView: View {
                 }
             }
         }
-        .onChange(of: arViewModel.flippedCardId) { _, newId in
-            if let id = newId {
-                detailCardViewModel.word = allCards.first(where: { $0.id == id })
-            }
-        }
         .onChange(of: arViewModel.numberOfFinishedCards) { _, newValue in
             if newValue == gameCards.count {
                 arViewModel.gamePhase = .finished
@@ -118,27 +107,6 @@ struct ARView: View {
                 saveScore()
                 saveSuccessCount()
             }
-        }
-        .onChange(of: arViewModel.showingWordDetailCard) { _, newValue in
-            // 단어 창이 닫힐 떄 이전 점수를 초기화한다
-            if !newValue {
-                detailCardViewModel.lastPassed = false
-                detailCardViewModel.accuracyType = .btnMic
-                detailCardViewModel.accuracyPercent = 0
-            }
-        }
-        .onChange(of: arViewModel.cardSubmissions) { _, newValue in
-            guard let flippedId = arViewModel.flippedCardId else {
-                print("cardSubmissions changed but no flipped card")
-                return
-            }
-
-            guard let submission = newValue[flippedId] else {
-                print("cardSubmissions changed but not for current card")
-                return
-            }
-
-            detailCardViewModel.accuracyType = submission.isPassed ? .success : .failure
         }
         .ignoresSafeArea()
         .navigationBarBackButtonHidden(true)

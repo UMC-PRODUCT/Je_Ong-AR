@@ -29,8 +29,6 @@ let project = Project(
                         "UIImageName": "",
                     ],
                     "NSCameraUsageDescription": "AR을 위해 카메라 사용이 필요합니다",
-                    "NSMicrophoneUsageDescription": "발음 분석을 위해 마이크 사용이 필요합니다",
-                    "NSSpeechRecognitionUsageDescription": "발음 분석을 위해 음성 인식이 필요합니다",
                     "UIViewControllerBasedStatusBarAppearance": false,
                     "UIStatusBarHidden": true,
                     "UISupportedInterfaceOrientations~ipad": [
