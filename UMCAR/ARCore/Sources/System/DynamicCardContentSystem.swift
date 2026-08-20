@@ -68,7 +68,7 @@ struct DynamicCardContentSystem: System {
         }
     }
     
-    private func createContentMaterial(for entity: HasModel, cardData: GameCard) async -> Material? {
+    private func createContentMaterial(for entity: HasModel, cardData: TechCard) async -> Material? {
         // Load Cache
         guard let cachedImage = await Self.imageProvider?.getImage(cardData: cardData) else {
             logger.error("CardContentImageProvider is not set")

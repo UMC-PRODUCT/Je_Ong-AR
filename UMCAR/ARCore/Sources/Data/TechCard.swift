@@ -15,12 +15,18 @@ public struct TechCard: Identifiable, Hashable {
     public let summary: String
     public let detail: String
 
-    public init(id: String, name: String, tag: String, summary: String, detail: String) {
+    /// 패널에 그릴 로고의 에셋 이름. 기본값은 id와 같다 —
+    /// Tools/normalize_logos.py가 로고를 카드 id로 저장하기 때문이다.
+    public let logoAssetName: String
+
+    public init(id: String, name: String, tag: String, summary: String, detail: String,
+                logoAssetName: String? = nil) {
         self.id = id
         self.name = name
         self.tag = tag
         self.summary = summary
         self.detail = detail
+        self.logoAssetName = logoAssetName ?? id
     }
 }
 

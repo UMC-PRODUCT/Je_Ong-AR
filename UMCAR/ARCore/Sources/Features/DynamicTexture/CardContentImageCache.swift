@@ -12,15 +12,15 @@ import UIKit
 class CardContentImageCache {
     private let cache = NSCache<NSString, UIImage>()
     
-    func get(id: UUID) -> UIImage? {
+    func get(id: String) -> UIImage? {
         cache.object(forKey: getKey(id: id))
     }
     
-    func set(_ image: UIImage, id: UUID) {
+    func set(_ image: UIImage, id: String) {
         cache.setObject(image, forKey: getKey(id: id))
     }
     
-    private func getKey(id: UUID) -> NSString {
-        NSString(string: id.uuidString)
+    private func getKey(id: String) -> NSString {
+        NSString(string: id)
     }
 }

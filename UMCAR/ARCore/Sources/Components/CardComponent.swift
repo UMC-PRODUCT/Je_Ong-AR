@@ -11,7 +11,7 @@ import UIKit
 struct CardComponent: Component {
     // MARK: - Properties
     /// 카드 데이터
-    let cardData: GameCard
+    let cardData: TechCard
     
     
     /// 카드 발음 성공/실패 상태 (false: 미도전, 실패, true: 성공)
@@ -20,7 +20,7 @@ struct CardComponent: Component {
     /// 앞면 머테리얼이 지정되었는지 여부 (true: 지정됨, false: 지정되지 않음)
     var isFrontRendered: Bool
     
-    init(cardData: GameCard, isCompleted: Bool = false, isFrontRendered: Bool = false) {
+    init(cardData: TechCard, isCompleted: Bool = false, isFrontRendered: Bool = false) {
         self.cardData = cardData
         self.isCompleted = isCompleted
         self.isFrontRendered = isFrontRendered

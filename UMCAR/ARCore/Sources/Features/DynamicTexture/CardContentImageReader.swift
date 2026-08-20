@@ -22,7 +22,7 @@ class CardContentImageReader {
     }
     
     /// 특정 아이디의 카드 이미지를 디스크에서 읽어 반환한다.
-    func getImage(cardId: UUID) -> UIImage? {
+    func getImage(cardId: String) -> UIImage? {
         let imagePath = baseURL.appendingPathComponent("\(cardId).png")
         do {
             let imageData = try Data(contentsOf: imagePath)

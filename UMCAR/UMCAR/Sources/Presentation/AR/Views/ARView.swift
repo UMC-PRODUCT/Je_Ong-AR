@@ -7,40 +7,10 @@
 
 import SwiftUI
 import ARCore
-import SwiftData
 import Dependency
 
 struct ARView: View {
-    // MARK: - SwiftData
-    @Environment(\.modelContext) var modelContext
-    let levelModelID: UUID
-    @Query var levels: [LevelModel]
-    @Query var gameSessions: [GameSessionModel]
-    @Query var allCards: [CardModel]
     @EnvironmentObject var container: DIContainer
-    
-    var selectedLevel: LevelModel? {
-        levels.first { levelModel in
-            levelModel.id == levelModelID
-        }
-    }
-    
-    var selectedGameSession: GameSessionModel? {
-        gameSessions.first { gameSessionModel in
-            gameSessionModel.level.id == levelModelID
-        }
-    }
-    
-    // ARCore 데이터 모델
-    var gameCards: [GameCard] {
-        if let selectedLevel {
-            let everyCardInLevel = selectedLevel.cards.compactMap { GameModelMapper.toGameModel($0) }
-            let randomCards = everyCardInLevel.shuffled().prefix(5)
-            return Array(randomCards)
-        }
-        
-        return []
-    }
     
     // MARK: - View Model
     @State var arViewModel: ARViewModel = .init()
@@ -54,7 +24,7 @@ struct ARView: View {
     var body: some View {
         ARContainer(
             gameSettings: .init(
-                gameCards: gameCards,
+                gameCards: TechCard.all,
                 fontSetting: .init(
                     title: titleFont,
                     subtitle: subtitleFont

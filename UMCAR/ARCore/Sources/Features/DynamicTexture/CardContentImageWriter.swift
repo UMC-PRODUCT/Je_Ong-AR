@@ -60,11 +60,12 @@ class CardContentImageWriter {
     }
     
     /// 특정 게임 카드의 이미지를 쓴다.
-    func writeImage(cardData: GameCard) throws {
+    func writeImage(cardData: TechCard) throws {
         let imageData = imageFrom(
-            engTitle: cardData.wordEng,
-            korTitle: cardData.wordKor,
-            image: cardData.image,
+            engTitle: cardData.name,
+            korTitle: cardData.tag,
+            image: UIImage(named: cardData.logoAssetName)
+                ?? UIImage(systemName: "app.dashed")!,
             size: .init(width: scale(cardWidth), height: scale(cardHeight))
         )
         
