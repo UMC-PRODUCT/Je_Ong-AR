@@ -20,7 +20,6 @@ extension ARContainerViewController {
         }
         
         // 시스템 등록
-        HoverSystem.registerSystem()
         DynamicCardContentSystem.imageProvider = cardContentImageProvider
         DynamicCardContentSystem.registerSystem()
         
@@ -43,7 +42,6 @@ extension ARContainerViewController {
         self.portalVisualizer = CentralPortalVisualizer(arView: arView)
         self.cardPositioner = CardPositioner(arView: arView)
         self.cardDetector = CardDetector(arView: arView)
-        self.cardRotator = CardRotator(arView: arView)
         
         logger.info("✅ ARFeatureProviders 초기화 완료")
     }
@@ -63,10 +61,6 @@ extension ARContainerViewController {
         }
         
         arView.session.run(configuration)
-        
-        arView.scene.subscribe(to: SceneEvents.Update.self) { [weak self]  event in
-            self?.updateHoveringState(event: event)
-        }.store(in: &sceneSubscriptions)
         
         logger.info("✅ ARSession have been started")
     }

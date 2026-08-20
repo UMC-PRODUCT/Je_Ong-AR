@@ -8,8 +8,6 @@ public struct ContentView: View {
     @State var triggerCreatePortal = false
     @State var triggerPlaceCards = false
     @State var gamePhase: GamePhase = .initialized
-    @State var triggerFlipCard = false
-    @State var flippedCardId: UUID?
     
     let gameCards: [GameCard] = [
         .init(
@@ -110,11 +108,9 @@ public struct ContentView: View {
                 gamePhase: $gamePhase,
                 arError: $arError,
                 currentDetectedPlanes: $currentDetectedPlanes,
-                flippedCardId: $flippedCardId,
                 triggerScanStart: $triggerScanStart,
                 triggerCreatePortal: $triggerCreatePortal,
-                triggerPlaceCards: $triggerPlaceCards,
-                triggerFlipCard: $triggerFlipCard
+                triggerPlaceCards: $triggerPlaceCards
             )
             .ignoresSafeArea()
             
@@ -140,15 +136,7 @@ public struct ContentView: View {
                 .disabled(buttonDisabled)
                 
                 
-                
-                Button("카드 뒤집기") {
-                    triggerFlipCard = true
-                }
-                
-                if let flippedCardId = flippedCardId {
-                    Text("뒤집힌 카드: \(flippedCardId)")
-                }
-                
+                                                
                 if let arError = arError {
                     Text("에러: \(arError.localizedDescription)")
                 }

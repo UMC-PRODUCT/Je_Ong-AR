@@ -33,32 +33,22 @@ public struct ARContainer: UIViewControllerRepresentable {
     /// 카드 배치 트리거
     @Binding var triggerPlaceCards: Bool
     
-    /// 카드 뒤집기 트리거
-    @Binding var triggerFlipCard: Bool
-    
-    /// 뒤집힌 카드 UUID
-    @Binding var flippedCardId: UUID?
-    
     public init(
         gameSettings: GameSettings,
         gamePhase: Binding<GamePhase>,
         arError: Binding<Error?>,
         currentDetectedPlanes: Binding<Int>,
-        flippedCardId: Binding<UUID?>,
         triggerScanStart: Binding<Bool>,
         triggerCreatePortal: Binding<Bool>,
-        triggerPlaceCards: Binding<Bool>,
-        triggerFlipCard: Binding<Bool>
+        triggerPlaceCards: Binding<Bool>
     ) {
         self.gameSettings = gameSettings
         self._gamePhage = gamePhase
         self._arError = arError
         self._currentDetectedPlanes = currentDetectedPlanes
-        self._flippedCardId = flippedCardId
         self._triggerScanStart = triggerScanStart
         self._triggerCreatePortal = triggerCreatePortal
         self._triggerPlaceCards = triggerPlaceCards
-        self._triggerFlipCard = triggerFlipCard
     }
     
     public func makeUIViewController(context: Context) -> ARContainerViewController {
@@ -92,16 +82,7 @@ public struct ARContainer: UIViewControllerRepresentable {
             }
         }
         
-        
-        if triggerFlipCard {
-            let cardId = uiViewController.flipCardAtCenter()
-            
-            DispatchQueue.main.async {
-                triggerFlipCard.toggle()
-                flippedCardId = cardId
-            }
-        }
-        
+                
     }
     
     public func makeCoordinator() -> Coordinator {

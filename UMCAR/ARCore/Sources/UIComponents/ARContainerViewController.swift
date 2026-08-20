@@ -30,7 +30,6 @@ public class ARContainerViewController: UIViewController {
     var portalVisualizer: CentralPortalVisualizer?
     var cardPositioner: CardPositioner?
     var cardDetector: CardDetector?
-    var cardRotator: CardRotator?
     
     /// 인식된 평면의 시각화 엔티티들
     var detectedPlaneEntities: [ARPlaneAnchor: AnchorEntity] = [:]
@@ -40,9 +39,6 @@ public class ARContainerViewController: UIViewController {
     
     /// 씬에 대한 이벤트 구독을 보관
     var sceneSubscriptions: Set<AnyCancellable> = []
-    
-    /// 호버링 여부 판단 주기를 조절하기 위해 필요한 델타 누적 프로퍼티
-    var observeHoveringAccumulatedTime: TimeInterval = 0
     
     // MARK: 게임 진행과 관련된 속성
     let gameSettings: GameSettings

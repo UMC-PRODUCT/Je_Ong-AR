@@ -35,17 +35,6 @@ struct PlayingGameOverlay: View {
             bottonGuide
                 .padding(.bottom, PlayingGameConstants.bottomPadding - UIConstants.bottomPadding)
         })
-        .overlay(alignment: .bottomLeading, content: {
-            targetBtn
-                .padding(.bottom, PlayingGameConstants.bottomPadding - UIConstants.bottomPadding)
-        })
-        .overlay(alignment: .bottomTrailing, content: {
-            targetBtn
-                .padding(.bottom, PlayingGameConstants.bottomPadding - UIConstants.bottomPadding)
-        })
-        .overlay(content: {
-            Image(.aim)
-        })
         .safeAreaPadding(.top, UIConstants.topPadding)
         .safeAreaPadding(.horizontal, PlayingGameConstants.horizonPadding)
         .safeAreaPadding(.bottom, UIConstants.bottomPadding)
@@ -54,11 +43,6 @@ struct PlayingGameOverlay: View {
     }
     
     
-    private var targetBtn: some View {
-        MainButton(buttonType: .icon(.target), action: {
-            arViewModel.triggerFlipCard = true
-        }, shadowOffset: PlayingGameConstants.shadowOffset)
-    }
     
     private var bottonGuide: some View {
         ZStack {

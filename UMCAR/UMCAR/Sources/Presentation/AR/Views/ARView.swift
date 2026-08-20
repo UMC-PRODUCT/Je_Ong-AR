@@ -70,11 +70,9 @@ struct ARView: View {
             gamePhase: $arViewModel.gamePhase,
             arError: $arViewModel.arError,
             currentDetectedPlanes: $arViewModel.currentDetectedPlanes,
-            flippedCardId: $arViewModel.flippedCardId,
             triggerScanStart: $arViewModel.triggerScanStart,
             triggerCreatePortal: $arViewModel.triggerOpenPortal,
-            triggerPlaceCards: $arViewModel.triggerPlaceCards,
-            triggerFlipCard: $arViewModel.triggerFlipCard
+            triggerPlaceCards: $arViewModel.triggerPlaceCards
         )
         .overlay {
             Group {

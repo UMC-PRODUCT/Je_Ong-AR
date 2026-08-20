@@ -43,7 +43,7 @@ import KonglishARProject
 /// ## 카드 엔티티 구조
 /// - **Root Entity**: Reality Composer Pro Scene 루트
 /// - **Card Entity**: "Card" 이름을 가진 실제 카드 모델
-/// - **Components**: CardComponent + HoverComponent 자동 추가
+/// - **Components**: CardComponent 자동 추가
 ///
 /// ## 좌표계 변환
 /// - ARPlaneAnchor → AnchorEntity 자동 변환
@@ -126,7 +126,6 @@ class CardPositioner: ARFeatureProvider {
                 entity.components[CardComponent.self] = CardComponent(cardData: data)
                 
                 // 호버 컴포넌트 추가
-                entity.components[HoverComponent.self] = HoverComponent(cardData: data)
                 
                 // 파티클 에미터 추가
                 entity.components.set(cardParticleEmitter)
