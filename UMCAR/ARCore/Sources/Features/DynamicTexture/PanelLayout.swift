@@ -11,16 +11,19 @@ import UIKit
 /// 긴 카드의 본문이 조용히 패널 밖으로 흘러나가는 것인데, 여기서 총 높이를
 /// 계산해두면 테스트가 9장 전부를 한 번에 확인할 수 있다.
 ///
-/// **비율은 부스에서의 읽기 거리로 정했다.** 패널은 실물 16.2 x 22.9cm로 뜨고,
-/// 관람객은 아이패드 카메라를 거쳐 본다. 직접 읽을 때보다 두 배쯤 커야 읽혀서
-/// 본문을 약 9mm로 잡았다.
+/// **비율은 부스에서의 읽기 거리로 정했다.** 패널은 실물 19.8 x 27.9cm로 뜨고,
+/// 관람객은 아이패드 카메라를 거쳐 본다. 카메라를 거치면 해상도와 흔들림으로
+/// 손해를 보므로 직접 읽을 때(약 4mm)의 세 배인 약 13mm로 잡았다.
+///
+/// 로고를 0.26으로 줄여 글자에 자리를 내줬다 — 아이콘은 이미 실물 카드에
+/// 크게 인쇄돼 있어 패널에서까지 클 이유가 없다.
 struct PanelLayout {
     /// 패널 크기 대비 비율. 이름·태그·본문은 높이 기준, 로고와 여백은 너비 기준이다.
     enum Ratio {
-        static let logoWidth: CGFloat = 0.30
-        static let name: CGFloat = 0.082
-        static let tag: CGFloat = 0.042
-        static let detail: CGFloat = 0.039
+        static let logoWidth: CGFloat = 0.26
+        static let name: CGFloat = 0.095
+        static let tag: CGFloat = 0.050
+        static let detail: CGFloat = 0.047
 
         static let margin: CGFloat = 0.08
         static let topInset: CGFloat = 0.06
