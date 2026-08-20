@@ -1,5 +1,5 @@
 //
-//  ARContainer.swift
+//  ExhibitContainer.swift
 //  ARCoreManifests
 //
 //  Created by 임영택 on 7/19/25.
@@ -8,10 +8,10 @@
 import SwiftUI
 
 /**
- ARContainerViewController를 SwiftUI로 브릿지하는 UIViewControllerRepresentable 클래스
+ ExhibitViewController를 SwiftUI로 브릿지하는 UIViewControllerRepresentable 클래스
  사용 방법은 ARCoreDemoApp 모듈 참고
  */
-public struct ARContainer: UIViewControllerRepresentable {
+public struct ExhibitContainer: UIViewControllerRepresentable {
     // MARK: - Properties
     let exhibitSettings: ExhibitSettings
     
@@ -46,13 +46,13 @@ public struct ARContainer: UIViewControllerRepresentable {
         self._triggerScanStart = triggerScanStart
     }
     
-    public func makeUIViewController(context: Context) -> ARContainerViewController {
-        let viewController = ARContainerViewController(exhibitSettings: exhibitSettings)
+    public func makeUIViewController(context: Context) -> ExhibitViewController {
+        let viewController = ExhibitViewController(exhibitSettings: exhibitSettings)
         viewController.delegate = context.coordinator
         return viewController
     }
     
-    public func updateUIViewController(_ uiViewController: ARContainerViewController, context: Context) {
+    public func updateUIViewController(_ uiViewController: ExhibitViewController, context: Context) {
         if triggerScanStart {
             uiViewController.startScanning()
             
@@ -66,31 +66,31 @@ public struct ARContainer: UIViewControllerRepresentable {
         return Coordinator(self)
     }
     
-    public class Coordinator: ARContainerViewControllerDelegate {
+    public class Coordinator: ExhibitViewControllerDelegate {
         
-        var parent: ARContainer
+        var parent: ExhibitContainer
         
-        init(_ parent : ARContainer) {
+        init(_ parent : ExhibitContainer) {
             self.parent = parent
         }
         
         
         
-        public func didDetectCard(_ arContainer: ARContainerViewController, cardID: String) {
+        public func didDetectCard(_ exhibitContainer: ExhibitViewController, cardID: String) {
             DispatchQueue.main.async {
-                self.parent.detectedCardCount = arContainer.detectedCardCount
+                self.parent.detectedCardCount = exhibitContainer.detectedCardCount
             }
         }
         
-        public func didChangeSelection(_ arContainer: ARContainerViewController, cardID: String?) {
+        public func didChangeSelection(_ exhibitContainer: ExhibitViewController, cardID: String?) {
             DispatchQueue.main.async {
                 self.parent.selectedCardID = cardID
             }
         }
         
-        public func didChangePhase(_ arContainer: ARContainerViewController) {
+        public func didChangePhase(_ exhibitContainer: ExhibitViewController) {
             DispatchQueue.main.async {
-                self.parent.exhibitPhase = arContainer.exhibitPhase
+                self.parent.exhibitPhase = exhibitContainer.exhibitPhase
             }
         }
         

@@ -1,5 +1,5 @@
 //
-//  ARContainerViewController.swift
+//  ExhibitViewController.swift
 //  ARCoreManifests
 //
 //  Created by 임영택 on 7/19/25.
@@ -11,8 +11,8 @@ import RealityKit
 import os.log
 import Combine
 
-/// ARView를 포함하는 UIViewController
-public class ARContainerViewController: UIViewController {
+/// ARView를 품고 이미지 인식·탭을 처리하는 UIViewController
+public class ExhibitViewController: UIViewController {
     // MARK: - Properties
     let arView = ARView()
     
@@ -20,10 +20,10 @@ public class ARContainerViewController: UIViewController {
     public var isDebugModeEnabled = false
     
     /// 대리자
-    public weak var delegate: ARContainerViewControllerDelegate?
+    public weak var delegate: ExhibitViewControllerDelegate?
     
     /// 로거
-    let logger = Logger.of("ARContainerViewController")
+    let logger = Logger.of("ExhibitViewController")
     
     /// 씬에 대한 이벤트 구독을 보관
     var sceneSubscriptions: Set<AnyCancellable> = []
@@ -40,7 +40,7 @@ public class ARContainerViewController: UIViewController {
     /// 어느 카드의 패널이 열려 있는지. 규칙은 CardSelection에 있고 테스트로 검증된다
     var selection = CardSelection()
     
-    // MARK: 게임 진행과 관련된 속성
+    // MARK: 전시 진행과 관련된 속성
     let exhibitSettings: ExhibitSettings
     
     /// 게임카드 앞면 텍스쳐 이미지를 로드하는 객체
@@ -83,7 +83,7 @@ public class ARContainerViewController: UIViewController {
     }
 }
 
-extension ARContainerViewController {
+extension ExhibitViewController {
     // MARK: - Setup UI
     private func setupUI() {
         view.addSubview(arView)

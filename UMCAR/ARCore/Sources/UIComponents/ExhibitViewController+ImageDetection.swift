@@ -1,12 +1,12 @@
 //
-//  ARContainerViewController+ImageDetection.swift
+//  ExhibitViewController+ImageDetection.swift
 //  ARCore
 //
 
 import ARKit
 import RealityKit
 
-extension ARContainerViewController {
+extension ExhibitViewController {
     /// ARKit이 레퍼런스 이미지를 찾았을 때 호출된다.
     ///
     /// Apple 문서: "ARKit adds an image anchor to a session exactly once for each

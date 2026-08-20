@@ -8,7 +8,7 @@ struct UMCARApp: App {
     var body: some Scene {
         WindowGroup {
             ARView()
-                .id(container.gameSessionID)
+                .id(container.sessionID)
                 .environmentObject(container)
         }
     }

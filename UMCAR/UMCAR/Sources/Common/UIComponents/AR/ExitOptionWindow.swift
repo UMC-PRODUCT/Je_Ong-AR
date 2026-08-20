@@ -48,7 +48,7 @@ struct ExitOptionWindow: View {
             })
             
             Button(action: {
-                container.restartGame()
+                container.restartSession()
             }, label: {
                 makeBtn(image: .exit, btnText: ExitOptionWindowConstants.rightText)
             })

@@ -1,5 +1,5 @@
 //
-//  ARContainerViewController+ARFeatures.swift
+//  ExhibitViewController+ARFeatures.swift
 //  ARCore
 //
 //  Created by 임영택 on 7/19/25.
@@ -9,7 +9,7 @@ import ARKit
 import RealityKit
 
 /// ARView 초기화, 해제 로직
-extension ARContainerViewController {
+extension ExhibitViewController {
     // MARK: - Setup ARView
     
     /// 처음 ARView를 초기화한다
@@ -76,7 +76,7 @@ extension ARContainerViewController {
 }
 
 /// ARSessionDelegate 구현
-extension ARContainerViewController: ARSessionDelegate {
+extension ExhibitViewController: ARSessionDelegate {
     public func session(_ session: ARSession, didAdd anchors: [ARAnchor]) {
         handleAddedImageAnchors(anchors)
     }

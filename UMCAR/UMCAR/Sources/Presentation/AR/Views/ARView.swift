@@ -16,10 +16,10 @@ struct ARView: View {
     // MARK: - View Model
     @State var arViewModel: ARViewModel = .init()
     
-    // MARK: - 게임 세팅을 위한 프로퍼티
-    /// 앞면 이미지 타이틀 폰트
+    // MARK: - 전시 세팅을 위한 프로퍼티
+    /// 패널 제목 폰트
     let titleFont: UIFont = UMCARFontFamily.NPSFont.extraBold.font(size: 64)
-    /// 앞면 이미지 서브타이틀 폰트
+    /// 패널 본문 폰트
     let subtitleFont: UIFont = UMCARFontFamily.NPSFont.extraBold.font(size: 32)
     
     /// AR Resource Group에서 카드 뒷면 레퍼런스 이미지를 읽는다.
@@ -39,7 +39,7 @@ struct ARView: View {
     private static let resourceGroupName = "TechCards"
 
     var body: some View {
-        ARContainer(
+        ExhibitContainer(
             exhibitSettings: .init(
                 cards: TechCard.all,
                 referenceImages: referenceImages,

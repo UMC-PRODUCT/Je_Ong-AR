@@ -1,12 +1,12 @@
 //
-//  ARContainerViewController+Tap.swift
+//  ExhibitViewController+Tap.swift
 //  ARCore
 //
 
 import RealityKit
 import UIKit
 
-extension ARContainerViewController {
+extension ExhibitViewController {
     /// arView에 탭 제스처를 붙인다. viewDidLoad에서 부른다.
     ///
     /// SwiftUI로 탭 좌표를 왕복시키지 않는다. 예전 구조는 trigger* Bool을 토글해

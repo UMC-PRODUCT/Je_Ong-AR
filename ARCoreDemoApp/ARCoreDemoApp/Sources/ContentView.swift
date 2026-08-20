@@ -13,7 +13,7 @@ public struct ContentView: View {
     
     public var body: some View {
         ZStack {
-            ARContainer(
+            ExhibitContainer(
                 exhibitSettings: ExhibitSettings(
                     cards: TechCard.all,
                     referenceImages: ARReferenceImage.referenceImages(
