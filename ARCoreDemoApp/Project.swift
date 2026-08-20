@@ -7,7 +7,7 @@ let project = Project(
             name: "ARCoreDemoApp",
             destinations: .iOS,
             product: .app,
-            bundleId: "app.arCoreDemoApp.Konglish",
+            bundleId: "app.arCoreDemoApp.UMCAR",
             infoPlist: .extendingDefault(
                 with: [
                     "UILaunchScreen": [
@@ -19,13 +19,13 @@ let project = Project(
             ),
             sources: ["ARCoreDemoApp/Sources/**"],
             resources: ["ARCoreDemoApp/Resources/**"],
-            dependencies: [.project(target: "ARCore", path: "../Konglish/ARCore")]
+            dependencies: [.project(target: "ARCore", path: "../UMCAR/ARCore")]
         ),
         .target(
             name: "ARCoreDemoAppTests",
             destinations: .iOS,
             product: .unitTests,
-            bundleId: "app.arCoreDemoAppTests.Konglish",
+            bundleId: "app.arCoreDemoAppTests.UMCAR",
             infoPlist: .default,
             sources: ["ARCoreDemoApp/Tests/**"],
             resources: [],
