@@ -84,91 +84,65 @@ class CardContentImageWriter {
     
     /// 패널에 그릴 이미지를 만든다.
     ///
-    /// 세로 구성 — 로고 / 기술명 / 태그 / 설명 문단.
-    /// 수치는 아직 확정이 아니다. 텍스처 해상도와 부스에서의 읽기 거리가
-    /// 트레이드오프라 실물을 보고 정한다 (DESIGN.md §12).
+    /// 세로 구성 — 로고 / 기술명 / 태그 / 설명 문단. 치수는 PanelLayout이 쥔다.
     private func imageFrom(card: TechCard, size: CGSize) -> Data {
+        let layout = PanelLayout(card: card, size: size)
         let renderer = UIGraphicsImageRenderer(size: size)
-        let margin = size.width * 0.08
-        let contentWidth = size.width - margin * 2
 
         return renderer.pngData { context in
             cardBackgroundColor.setFill()
             context.fill(CGRect(origin: .zero, size: size))
 
-            let centered: NSMutableParagraphStyle = {
-                let style = NSMutableParagraphStyle()
-                style.alignment = .center
-                return style
-            }()
-
-            let justified: NSMutableParagraphStyle = {
-                let style = NSMutableParagraphStyle()
-                style.alignment = .left
-                style.lineSpacing = size.height * 0.008
-                return style
-            }()
-
             // 내용 블록의 총 높이를 먼저 재고 세로 중앙에 놓는다.
             // 설명 길이가 카드마다 달라서 위에서부터 쌓으면 짧은 카드는 아래가 크게 빈다.
-            let logoSide = size.width * 0.34
-            let nameFont = UIFont.arCoreTitle.withSize(size.height * 0.055)
-            let tagFont = UIFont.arCoreSubtitle.withSize(size.height * 0.028)
-            let detailFont = UIFont.arCoreSubtitle.withSize(size.height * 0.026)
-
-            let detailHeight = (card.detail as NSString).boundingRect(
-                with: CGSize(width: contentWidth, height: .greatestFiniteMagnitude),
-                options: [.usesLineFragmentOrigin, .usesFontLeading],
-                attributes: [.font: detailFont, .paragraphStyle: justified],
-                context: nil
-            ).height
-
-            let totalHeight = logoSide + size.height * 0.035
-                + nameFont.lineHeight * 1.15
-                + tagFont.lineHeight * 1.9
-                + size.height * 0.032
-                + detailHeight
-
-            var y = max(size.height * 0.06, (size.height - totalHeight) / 2)
+            var y = max(size.height * PanelLayout.Ratio.topInset,
+                        (size.height - layout.totalHeight) / 2)
 
             // 로고
             let logo = UIImage(named: card.logoAssetName)
                 ?? UIImage(systemName: "app.dashed")!
-            logo.draw(in: CGRect(x: (size.width - logoSide) / 2, y: y,
-                                 width: logoSide, height: logoSide))
-            y += logoSide + size.height * 0.035
+            logo.draw(in: CGRect(x: (size.width - layout.logoSide) / 2, y: y,
+                                 width: layout.logoSide, height: layout.logoSide))
+            y += layout.logoSide + size.height * PanelLayout.Ratio.logoGap
 
             // 기술명
-            let nameRect = CGRect(x: margin, y: y, width: contentWidth, height: nameFont.lineHeight * 2.2)
             NSAttributedString(string: card.name, attributes: [
-                .font: nameFont,
-                .paragraphStyle: centered,
+                .font: layout.nameFont,
+                .paragraphStyle: layout.centered,
                 .foregroundColor: PanelPalette.title,
-            ]).draw(in: nameRect)
-            y += nameFont.lineHeight * 1.15
+            ]).draw(in: CGRect(x: layout.margin, y: y,
+                               width: layout.contentWidth,
+                               height: layout.nameFont.lineHeight * 2.2))
+            y += layout.nameFont.lineHeight * PanelLayout.Ratio.nameLead
 
             // 태그
             NSAttributedString(string: card.tag, attributes: [
-                .font: tagFont,
-                .paragraphStyle: centered,
+                .font: layout.tagFont,
+                .paragraphStyle: layout.centered,
                 .foregroundColor: PanelPalette.tag,
-            ]).draw(in: CGRect(x: margin, y: y, width: contentWidth, height: tagFont.lineHeight * 1.6))
-            y += tagFont.lineHeight * 1.9
+            ]).draw(in: CGRect(x: layout.margin, y: y,
+                               width: layout.contentWidth,
+                               height: layout.tagFont.lineHeight * 1.6))
+            y += layout.tagFont.lineHeight * PanelLayout.Ratio.tagLead
 
             // 구분선
             PanelPalette.divider.setFill()
-            context.fill(CGRect(x: margin, y: y, width: contentWidth, height: max(1, size.height * 0.002)))
-            y += size.height * 0.032
+            context.fill(CGRect(x: layout.margin, y: y,
+                                width: layout.contentWidth,
+                                height: max(1, size.height * 0.002)))
+            y += size.height * PanelLayout.Ratio.ruleGap
 
             // 설명 문단
             NSAttributedString(string: card.detail, attributes: [
-                .font: detailFont,
-                .paragraphStyle: justified,
+                .font: layout.detailFont,
+                .paragraphStyle: layout.justified,
                 .foregroundColor: PanelPalette.detail,
-            ]).draw(in: CGRect(x: margin, y: y, width: contentWidth, height: detailHeight + detailFont.lineHeight))
+            ]).draw(in: CGRect(x: layout.margin, y: y,
+                               width: layout.contentWidth,
+                               height: layout.detailHeight + layout.detailFont.lineHeight))
         }
     }
-    
+
     private func scale(_ scalar: Double) -> Double {
         scalar * scaleFactor
     }
