@@ -36,6 +36,10 @@ extension ExhibitViewController {
             anchorEntity.addChild(hit)
             arView.scene.addAnchor(anchorEntity)
 
+            // 추적 상한을 넘겨 붙은 앵커는 isTracked가 false다. 그대로 켜면
+            // 추적도 안 되는 카드에 테두리가 붙는다.
+            hit.isEnabled = imageAnchor.isTracked
+
             cardEntities[card.id] = hit
             panelEntities[card.id] = panel
             applyPanelTexture(to: panel, card: card)
@@ -46,6 +50,56 @@ extension ExhibitViewController {
             delegate?.didDetectCard(self, cardID: card.id)
             logger.info("카드 인식: \(card.id)")
         }
+    }
+
+    /// 추적 상태가 바뀐 카드를 켜고 끈다.
+    ///
+    /// **ARKit은 카드가 시야를 벗어나도 앵커를 지우지 않는다.** `isTracked`를 안 보면
+    /// 관람객이 다른 곳을 비춰도 무지개 테두리가 허공에 그대로 남는다. 매 프레임
+    /// 오지만 실제로 상태가 바뀔 때만 엔티티를 건드린다.
+    ///
+    /// 동시 4장 상한 때문에, 화면에 5장 이상 들어오면 나머지는 여기서 꺼진다.
+    func handleUpdatedImageAnchors(_ anchors: [ARAnchor]) {
+        for anchor in anchors {
+            guard let imageAnchor = anchor as? ARImageAnchor,
+                  let name = imageAnchor.referenceImage.name,
+                  let card = exhibitSettings.card(forReferenceImageNamed: name)
+            else { continue }
+
+            setCardVisible(imageAnchor.isTracked, cardID: card.id)
+        }
+    }
+
+    /// 앵커가 사라진 카드를 숨긴다.
+    ///
+    /// 엔티티는 지우지 않는다. `detectedCardCount`가 "지금 보이는 수"가 아니라
+    /// "여태 찾은 수"라서, 지우면 n/9 카운터가 뒤로 간다.
+    func handleRemovedImageAnchors(_ anchors: [ARAnchor]) {
+        for anchor in anchors {
+            guard let imageAnchor = anchor as? ARImageAnchor,
+                  let name = imageAnchor.referenceImage.name,
+                  let card = exhibitSettings.card(forReferenceImageNamed: name)
+            else { continue }
+
+            setCardVisible(false, cardID: card.id)
+        }
+    }
+
+    /// 카드에 딸린 엔티티 전체를 켜고 끈다.
+    ///
+    /// 히트 판을 끄면 자식인 패널·테두리도 같이 꺼지고, `arView.entity(at:)`도
+    /// 안 맞는다 — 안 보이는 카드를 탭하는 일이 없어진다.
+    private func setCardVisible(_ visible: Bool, cardID: String) {
+        guard let entity = cardEntities[cardID], entity.isEnabled != visible else { return }
+        entity.isEnabled = visible
+
+        guard !visible, selection.selected == cardID else { return }
+
+        // 열어둔 카드가 사라졌다. 패널과 선택을 같이 놓아야 다음 관람객에게
+        // "카드를 터치하세요" 안내가 다시 뜬다.
+        panelEntities[cardID]?.isEnabled = false
+        selection.clear()
+        delegate?.didChangeSelection(self, cardID: selection.selected)
     }
 
     /// 구워둔 패널 이미지를 머티리얼로 물린다.
