@@ -14,6 +14,8 @@ public struct ContentView: View {
     @State var gamePhase: GamePhase = .initialized
     @State var triggerFlipCard = false
     @State var flippedCardId: UUID?
+    // ARContainer가 요구하는 바인딩. 이게 없어 데모 타깃이 컴파일되지 않는 상태였다.
+    @State var cardSubmissions: [UUID: GameCardSubmission] = [:]
     
     let gameCards: [GameCard] = [
         .init(
@@ -118,6 +120,7 @@ public struct ContentView: View {
                 currentGameScore: $currentGameScore,
                 numberOfFinishedCards: $numberOfFinishedCards,
                 flippedCardId: $flippedCardId,
+                cardSubmissions: $cardSubmissions,
                 triggerScanStart: $triggerScanStart,
                 triggerCreatePortal: $triggerCreatePortal,
                 triggerPlaceCards: $triggerPlaceCards,
