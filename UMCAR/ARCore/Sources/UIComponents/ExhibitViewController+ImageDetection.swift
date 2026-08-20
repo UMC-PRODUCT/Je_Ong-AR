@@ -27,7 +27,7 @@ extension ExhibitViewController {
             }
             guard cardEntities[card.id] == nil else { continue }
 
-            let (hit, panel) = CardPanelBuilder.build(
+            let (hit, panel, _) = CardPanelBuilder.build(
                 cardID: card.id,
                 physicalSize: imageAnchor.referenceImage.physicalSize
             )
