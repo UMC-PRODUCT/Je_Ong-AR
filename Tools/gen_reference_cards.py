@@ -54,13 +54,13 @@ MIN_EDGE = 10.0
 PLATE = (0.07, 0.375, 0.93, 0.575)
 
 # 카드 스타일.
-#   "pattern" — 패턴이 주역, 로고는 판 안쪽 작게 (기본)
-#   "icon"    — 아이콘이 주역, 배경은 저가시성 미세 텍스처
-STYLE = os.environ.get("CARD_STYLE", "pattern")
+#   "icon"    — 아이콘이 주역 (기본). 배경 패턴은 인식용으로 남긴다
+#   "pattern" — 패턴이 주역, 로고는 판 안쪽 작게. 되돌릴 때 CARD_STYLE=pattern
+STYLE = os.environ.get("CARD_STYLE", "icon")
 
 # 패턴 대비를 얼마나 누를지. icon 스타일에서 배경을 "거의 단색처럼" 보이게 한다.
 # 0에 가까울수록 눈에 안 띄지만 ARKit이 쓸 휘도 진폭도 같이 줄어든다.
-TONE_SCALE = 1.0 if STYLE == "pattern" else 1.00
+TONE_SCALE = 1.0
 
 # 로고 한 변 (카드 높이 대비). 텍스트 줄 수에 묶으면 두 줄짜리 이름만 로고가 커져
 # 9장의 인상이 흐트러진다. 고정값으로 통일한다.
@@ -482,8 +482,9 @@ def draw_icon_layout(img, d, card, bg, ink):
     logo_path = os.path.join(LOGO_DIR, f"{card['id']}.png")
 
     dark_bg = sum(bg) < 400
+    # 판이 밝으면 글자는 어둡게. 판 색은 아래에서 dark_bg로 정한다
     text_col = (246, 247, 248) if dark_bg else (16, 18, 20)
-    sub_col = (188, 192, 196) if dark_bg else (92, 98, 104)
+    sub_col = (170, 176, 182) if dark_bg else (92, 98, 104)
 
     # 아이콘 — 카드 폭의 절반 이상. 부스에서 멀리서도 무엇인지 보이게 한다
     side = int(CW * 0.52)
@@ -501,6 +502,25 @@ def draw_icon_layout(img, d, card, bg, ink):
     # 기술명 — 두 줄까지 허용
     lines, size = fit_name(d, name, CW * 0.84, int(CH * 0.062))
     f = font(FONT_BLACK, size)
+
+    # 글자 뒤에만 반투명 판을 깐다. 아이콘은 자체 배경이 있어 그냥 읽히지만
+    # 글자는 패턴 위에 그대로 얹으면 묻힌다.
+    tag_size_pre = int(CH * 0.028)
+    ft_pre = font(FONT_KR, tag_size_pre)
+    name_bbs = [d.textbbox((0, 0), l, font=f) for l in lines]
+    bbt_pre = d.textbbox((0, 0), tag, font=ft_pre)
+    block_w = max(max(b[2] - b[0] for b in name_bbs), bbt_pre[2] - bbt_pre[0])
+    block_h = (sum(b[3] - b[1] for b in name_bbs) + size * 0.18 * len(lines)
+               + size * 0.12 + (bbt_pre[3] - bbt_pre[1]))
+    bx = size * 0.5
+    by = size * 0.34
+    plate_col = (250, 250, 250) if not dark_bg else (14, 16, 18)
+    overlay = Image.new("RGBA", (CW, CH), (0, 0, 0, 0))
+    ImageDraw.Draw(overlay).rounded_rectangle(
+        [CW / 2 - block_w / 2 - bx, y - by, CW / 2 + block_w / 2 + bx, y + block_h + by],
+        radius=size * 0.28, fill=plate_col + (196,))
+    img.alpha_composite(overlay)
+
     for line in lines:
         bb = d.textbbox((0, 0), line, font=f)
         w = bb[2] - bb[0]
