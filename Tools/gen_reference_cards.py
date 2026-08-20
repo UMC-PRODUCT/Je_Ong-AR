@@ -53,6 +53,15 @@ MIN_EDGE = 10.0
 # 텍스트 판 영역 (비율). 주입 레이어는 이 안을 건드리지 않는다 — 가독성 보호.
 PLATE = (0.07, 0.375, 0.93, 0.575)
 
+# 카드 스타일.
+#   "pattern" — 패턴이 주역, 로고는 판 안쪽 작게 (기본)
+#   "icon"    — 아이콘이 주역, 배경은 저가시성 미세 텍스처
+STYLE = os.environ.get("CARD_STYLE", "pattern")
+
+# 패턴 대비를 얼마나 누를지. icon 스타일에서 배경을 "거의 단색처럼" 보이게 한다.
+# 0에 가까울수록 눈에 안 띄지만 ARKit이 쓸 휘도 진폭도 같이 줄어든다.
+TONE_SCALE = 1.0 if STYLE == "pattern" else 1.00
+
 # 로고 한 변 (카드 높이 대비). 텍스트 줄 수에 묶으면 두 줄짜리 이름만 로고가 커져
 # 9장의 인상이 흐트러진다. 고정값으로 통일한다.
 LOGO_FRAC = 0.065
@@ -63,8 +72,11 @@ def font(path, size):
 
 
 def tone(base, delta):
-    """base RGB에 명도 델타를 더한다. 휘도 다양성을 만드는 핵심."""
-    return tuple(max(0, min(255, int(c + delta))) for c in base)
+    """base RGB에 명도 델타를 더한다. 휘도 다양성을 만드는 핵심.
+
+    TONE_SCALE로 진폭을 누른다. icon 스타일은 배경이 눈에 띄면 안 되지만
+    ARKit이 쓸 고주파는 남아 있어야 해서, 진폭만 줄이고 구조는 그대로 둔다."""
+    return tuple(max(0, min(255, int(c + delta * TONE_SCALE))) for c in base)
 
 
 # ---------------------------------------------------------------- 대형 구성 레이어
@@ -459,6 +471,55 @@ def draw_text_plate(img, d, name, tag, bg, logo_path=None):
     return (px0, py0, px1, py1)
 
 
+def draw_icon_layout(img, d, card, bg, ink):
+    """
+    아이콘이 주역인 구성. 아이콘 / 기술명 / 태그를 세로로 쌓는다.
+
+    배경 패턴은 TONE_SCALE로 눌러서 육안에는 거의 단색으로 보이게 하되 구조는
+    남긴다 — ARKit이 쓸 고주파가 없으면 인식이 죽는다. 반환값은 주입 제외 영역.
+    """
+    name, tag = card["name"], card["tag"]
+    logo_path = os.path.join(LOGO_DIR, f"{card['id']}.png")
+
+    dark_bg = sum(bg) < 400
+    text_col = (246, 247, 248) if dark_bg else (16, 18, 20)
+    sub_col = (188, 192, 196) if dark_bg else (92, 98, 104)
+
+    # 아이콘 — 카드 폭의 절반 이상. 부스에서 멀리서도 무엇인지 보이게 한다
+    side = int(CW * 0.52)
+    top = int(CH * 0.20)
+    pad = int(CW * 0.015)
+    rects = []
+    if os.path.isfile(logo_path):
+        logo = Image.open(logo_path).convert("RGBA").resize((side, side), Image.LANCZOS)
+        lx = (CW - side) // 2
+        img.alpha_composite(logo, (lx, top))
+        rects.append((lx - pad, top - pad, lx + side + pad, top + side + pad))
+
+    y = top + side + int(CH * 0.045)
+
+    # 기술명 — 두 줄까지 허용
+    lines, size = fit_name(d, name, CW * 0.84, int(CH * 0.062))
+    f = font(FONT_BLACK, size)
+    for line in lines:
+        bb = d.textbbox((0, 0), line, font=f)
+        w = bb[2] - bb[0]
+        d.text((CW / 2 - w / 2 - bb[0], y - bb[1]), line, font=f, fill=text_col)
+        rects.append((CW / 2 - w / 2 - pad, y - pad, CW / 2 + w / 2 + pad, y + (bb[3] - bb[1]) + pad))
+        y += (bb[3] - bb[1]) + size * 0.18
+
+    # 태그
+    tag_size = int(CH * 0.028)
+    ft = font(FONT_KR, tag_size)
+    bbt = d.textbbox((0, 0), tag, font=ft)
+    y += size * 0.12
+    tw = bbt[2] - bbt[0]
+    d.text((CW / 2 - tw / 2 - bbt[0], y - bbt[1]), tag, font=ft, fill=sub_col)
+    rects.append((CW / 2 - tw / 2 - pad, y - pad, CW / 2 + tw / 2 + pad, y + (bbt[3] - bbt[1]) + pad))
+
+    return rects
+
+
 def draw_orientation_marks(d, idx, ink, bg):
     """
     방향 고정용 비대칭 마크.
@@ -508,17 +569,21 @@ def edge_energy_grid(img):
 
 
 def inject_detail(d, rng, cells, ink, bg, plate):
-    """에너지가 낮은 셀에만 고대비 마크를 주입한다. 빈 영역을 없애는 것이 목적."""
+    """에너지가 낮은 셀에만 고대비 마크를 주입한다. 빈 영역을 없애는 것이 목적.
+
+    plate는 사각형 하나 또는 여러 개를 받는다. 아이콘 스타일은 아이콘과 글자에
+    딱 붙은 사각형들만 제외해야 한다 — 띠 전체를 제외하면 좌우 여백까지 못 채워
+    죽은 셀이 대량으로 남는다."""
     cw, ch = CW / GW, CH / GH
-    px0, py0, px1, py1 = plate
+    rects = plate if isinstance(plate, list) else [plate]
     filled = 0
     for i, v in enumerate(cells):
         if v >= MIN_EDGE:
             continue
         gx, gy = i % GW, i // GW
         x0, y0 = gx * cw, gy * ch
-        # 텍스트 판 안쪽은 건드리지 않는다 — 가독성 보호
-        if x0 + cw > px0 and x0 < px1 and y0 + ch > py0 and y0 < py1:
+        # 글자·아이콘 위는 건드리지 않는다 — 가독성 보호
+        if any(x0 + cw > r[0] and x0 < r[2] and y0 + ch > r[1] and y0 < r[3] for r in rects):
             continue
         filled += 1
         deficit = (MIN_EDGE - v) / MIN_EDGE
@@ -548,6 +613,11 @@ def build(idx, card):
     cid, bg, ink = card["id"], card["bg"], card["ink"]
     rng = random.Random(0xA5C0 + idx * 7919)
 
+    # icon 스타일은 배경이 눈에 띄면 안 된다. 잉크를 배경 쪽으로 당겨
+    # 패턴 자체를 저대비로 만든다 (tone()의 TONE_SCALE과 함께 작용).
+    if STYLE == "icon":
+        ink = tuple(int(bg[i] + (ink[i] - bg[i]) * 0.93) for i in range(3))
+
     img = Image.new("RGBA", (CW, CH), bg + (255,))
     d = ImageDraw.Draw(img)
 
@@ -562,8 +632,11 @@ def build(idx, card):
         if inject_detail(d, rng, edge_energy_grid(img), ink, bg, whole) == 0:
             break
 
-    plate = draw_text_plate(img, d, card["name"], card["tag"], bg,
-                            logo_path=os.path.join(LOGO_DIR, f"{cid}.png"))
+    if STYLE == "icon":
+        plate = draw_icon_layout(img, d, card, bg, card["ink"])
+    else:
+        plate = draw_text_plate(img, d, card["name"], card["tag"], bg,
+                                logo_path=os.path.join(LOGO_DIR, f"{cid}.png"))
 
     # 2단계: 판을 올린 뒤 남은 공백을 메운다. 판 안쪽은 가독성 때문에 건드리지 않는다.
     for _ in range(2):
