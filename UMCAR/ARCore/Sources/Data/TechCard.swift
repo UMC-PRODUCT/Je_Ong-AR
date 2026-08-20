@@ -70,7 +70,7 @@ public extension TechCard {
                   + "Engine에 연산을 알아서 나눠 서버 없이 빠르게 추론한다."
         ),
         .init(
-            id: "foundation-models", name: "Foundation Models", tag: "내장 LLM · iOS 26",
+            id: "foundation-models", name: "Foundation Models", tag: "내장 LLM (iOS 26)",
             summary: "Apple의 온디바이스 언어 모델을 코드로 호출",
             detail: "Apple Intelligence의 약 30억 파라미터 모델에 직접 프롬프트를 보낸다. "
                   + "오프라인·무료로 동작하고, Swift 타입을 지정하면 그 구조 그대로 결과를 받는다."
