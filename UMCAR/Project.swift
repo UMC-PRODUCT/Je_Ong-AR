@@ -29,8 +29,6 @@ let project = Project(
                         "UIImageName": "",
                     ],
                     "NSCameraUsageDescription": "AR을 위해 카메라 사용이 필요합니다",
-                    "NSMicrophoneUsageDescription": "발음 분석을 위해 마이크 사용이 필요합니다",
-                    "NSSpeechRecognitionUsageDescription": "발음 분석을 위해 음성 인식이 필요합니다",
                     "UIViewControllerBasedStatusBarAppearance": false,
                     "UIStatusBarHidden": true,
                     "UISupportedInterfaceOrientations~ipad": [
@@ -50,7 +48,11 @@ let project = Project(
                 base: [
                     "MARKETING_VERSION": .string(marketingVersion),
                     "CURRENT_PROJECT_VERSION": .string(currentProjectVersion),
-                    "ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS": "YES"
+                    "ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS": "YES",
+                    // 여기 없으면 tuist generate 할 때마다 서명 설정이 날아가
+                    // 실기기 빌드가 "requires a development team"으로 깨진다.
+                    "DEVELOPMENT_TEAM": "2Z52RL5Y3M",
+                    "CODE_SIGN_STYLE": "Automatic"
                 ]
             )
         ),

@@ -12,20 +12,20 @@ import os.log
 actor CardContentImageProvider {
     let reader: CardContentImageReader
     let writer: CardContentImageWriter
-    let allCards: [GameCard]
+    let allCards: [TechCard]
     
     /// 이미지 로드 후 캐시
     private let imageCache: CardContentImageCache?
     
     /// 현재 쓰기 중인 태스크를 보관
-    private var writingTasks: [UUID: Task<UIImage?, Never>] = [:]
+    private var writingTasks: [String: Task<UIImage?, Never>] = [:]
     
     private let logger = Logger.of("CardContentImageProvider")
     
     init(
         reader: CardContentImageReader,
         writer: CardContentImageWriter,
-        allCards: [GameCard],
+        allCards: [TechCard],
         imageCache: CardContentImageCache? = nil
     ) {
         self.reader = reader
@@ -34,7 +34,7 @@ actor CardContentImageProvider {
         self.imageCache = imageCache
     }
     
-    init(allCards: [GameCard], imageCache: CardContentImageCache? = nil) {
+    init(allCards: [TechCard], imageCache: CardContentImageCache? = nil) {
         let baseURL: URL = {
             let fileManager = FileManager.default
             let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -64,61 +64,61 @@ actor CardContentImageProvider {
     }
     
     /// 특정 카드의 앞면 이미지를 미리 로드해 캐시를 워업한다
-    func loadImage(cardData: GameCard) async {
+    func loadImage(cardData: TechCard) async {
         if let _ = imageCache?.get(id: cardData.id) {
             // 이미 이미지가 로드된 경우 넘어간다
-            logger.debug("image for \(cardData.wordEng) already loaded in cache")
+            logger.debug("image for \(cardData.name) already loaded in cache")
             return
         }
         
         if let image = reader.getImage(cardId: cardData.id) {
             // 파일 시스템에 있는 경우 바로 캐시 웜엄
-            logger.debug("image for \(cardData.wordEng) loaded from disk")
+            logger.debug("image for \(cardData.name) loaded from disk")
             imageCache?.set(image, id: cardData.id)
             return
         }
         
         if let _ = writingTasks[cardData.id] {
             // 쓰기 중인 태스크가 있는 경우 넘어간다
-            logger.debug("image for \(cardData.wordEng) now writing")
+            logger.debug("image for \(cardData.name) now writing")
             return
         }
         
         // 새로 태스크를 만들어야 하는 경우
-        logger.debug("will begin to write image for \(cardData.wordEng)")
+        logger.debug("will begin to write image for \(cardData.name)")
         let task = createWriteImageTask(for: cardData)
         writingTasks[cardData.id] = task
     }
     
     /// 특정 카드의 앞면 이미지를 반환한다
-    func getImage(cardData: GameCard) async -> UIImage? {
+    func getImage(cardData: TechCard) async -> UIImage? {
         if let image = imageCache?.get(id: cardData.id) {
             // 이미 이미지가 로드된 경우
-            logger.debug("image for \(cardData.wordEng) already loaded in cache")
+            logger.debug("image for \(cardData.name) already loaded in cache")
             return image
         }
         
         if let image = reader.getImage(cardId: cardData.id) {
             // 파일 시스템에 있는 경우 바로 캐시 웜엄
-            logger.debug("image for \(cardData.wordEng) loaded from disk")
+            logger.debug("image for \(cardData.name) loaded from disk")
             imageCache?.set(image, id: cardData.id)
             return image
         }
         
         if let task = writingTasks[cardData.id] {
             // 쓰기 중인 태스크가 있는 경우 넘어간다
-            logger.debug("image for \(cardData.wordEng) now writing")
+            logger.debug("image for \(cardData.name) now writing")
             return await task.value
         }
         
         // 새로 태스크를 만들어야 하는 경우
-        logger.debug("will begin to write image for \(cardData.wordEng)")
+        logger.debug("will begin to write image for \(cardData.name)")
         let task = createWriteImageTask(for: cardData)
         writingTasks[cardData.id] = task
         return await task.value
     }
     
-    private func createWriteImageTask(for cardData: GameCard) -> Task<UIImage?, Never> {
+    private func createWriteImageTask(for cardData: TechCard) -> Task<UIImage?, Never> {
         Task<UIImage?, Never> {
             defer {
                 self.writingTasks.removeValue(forKey: cardData.id)
@@ -126,17 +126,17 @@ actor CardContentImageProvider {
 
             do {
                 try writer.writeImage(cardData: cardData)
-                logger.debug("\(cardData.wordEng) image written")
+                logger.debug("\(cardData.name) image written")
 
                 if let image = reader.getImage(cardId: cardData.id) {
                     imageCache?.set(image, id: cardData.id)
                     return image
                 } else {
-                    logger.error("Image written but failed to read back: \(cardData.wordEng)")
+                    logger.error("Image written but failed to read back: \(cardData.name)")
                     return nil
                 }
             } catch {
-                logger.error("Failed to write image for \(cardData.wordEng): \(error.localizedDescription)")
+                logger.error("Failed to write image for \(cardData.name): \(error.localizedDescription)")
                 return nil
             }
         }

@@ -1,0 +1,103 @@
+//
+//  TechCard.swift
+//  ARCore
+//
+
+import Foundation
+
+/// 카드 한 장의 콘텐츠.
+///
+/// `id`가 곧 `ARReferenceImage.name`이다. 그래서 앵커 → 카드 조회가 한 줄로 끝난다.
+public struct TechCard: Identifiable, Hashable {
+    public let id: String
+    public let name: String
+    public let tag: String
+    public let summary: String
+    public let detail: String
+
+    /// 패널에 그릴 로고의 에셋 이름.
+    ///
+    /// 네임스페이스가 붙는다. 로고 이미지셋을 카드 id 그대로 두면 같은 카탈로그의
+    /// AR 레퍼런스 이미지와 이름이 겹쳐 actool이 "Identical key for two renditions"로
+    /// 실패한다. 레퍼런스 이미지 이름은 TechCard.id와 같아야 하므로 로고 쪽에 준다.
+    public let logoAssetName: String
+
+    public init(id: String, name: String, tag: String, summary: String, detail: String,
+                logoAssetName: String? = nil) {
+        self.id = id
+        self.name = name
+        self.tag = tag
+        self.summary = summary
+        self.detail = detail
+        self.logoAssetName = logoAssetName ?? "TechLogos/\(id)"
+    }
+}
+
+public extension TechCard {
+    static func card(id: String) -> TechCard? {
+        all.first { $0.id == id }
+    }
+
+    /// 부스에 배치하는 9장.
+    ///
+    /// 원본은 `Tools/gen_reference_cards.py`의 CARDS 배열이고, 카드 이미지와
+    /// `Docs/Assets/ReferenceCards/cards/cards.json`이 거기서 함께 생성된다.
+    /// 여기는 그 사본이므로 **콘텐츠가 바뀌면 양쪽을 함께 고쳐야 한다.**
+    /// 어긋나면 카드 뒷면과 패널 내용이 따로 논다. TechCardTests가 id 대응을 지킨다.
+    static let all: [TechCard] = [
+        .init(
+            id: "corelocation", name: "CoreLocation", tag: "위치·방향",
+            summary: "기기가 지금 어디 있는지 알려주는 프레임워크",
+            detail: "GPS·Wi-Fi·셀룰러·기압계를 조합해 위·경도, 고도, 나침반 방위를 제공한다. "
+                  + "특정 구역 진입/이탈 감지(지오펜싱)와 iBeacon도 여기에 포함된다."
+        ),
+        .init(
+            id: "apple-intelligence", name: "Apple Intelligence", tag: "온디바이스 개인 지능",
+            summary: "기기 안에서 동작하는 Apple의 AI 시스템",
+            detail: "글쓰기 도구, Genmoji, 알림 요약, Siri를 하나로 묶는다. 대부분 기기 안에서 "
+                  + "처리하고, 큰 연산만 Private Cloud Compute로 넘겨 프라이버시를 지킨다."
+        ),
+        .init(
+            id: "cloudkit", name: "CloudKit", tag: "iCloud 동기화",
+            summary: "서버를 만들지 않고 데이터를 기기 간에 동기화",
+            detail: "사용자의 iCloud 계정에 데이터를 저장해 아이폰·아이패드·맥이 같은 내용을 "
+                  + "보게 한다. 비공개·공유·공개 3가지 저장소를 제공한다."
+        ),
+        .init(
+            id: "coreml", name: "CoreML", tag: "온디바이스 머신러닝",
+            summary: "학습된 AI 모델을 앱 안에서 직접 실행",
+            detail: "모델 파일을 Xcode에 넣으면 Swift 코드가 자동 생성된다. CPU·GPU·Neural "
+                  + "Engine에 연산을 알아서 나눠 서버 없이 빠르게 추론한다."
+        ),
+        .init(
+            id: "foundation-models", name: "Foundation Models", tag: "내장 LLM (iOS 26)",
+            summary: "Apple의 온디바이스 언어 모델을 코드로 호출",
+            detail: "Apple Intelligence의 약 30억 파라미터 모델에 직접 프롬프트를 보낸다. "
+                  + "오프라인·무료로 동작하고, Swift 타입을 지정하면 그 구조 그대로 결과를 받는다."
+        ),
+        .init(
+            id: "liquid-glass", name: "Liquid Glass", tag: "iOS 26 디자인",
+            summary: "빛을 굴절시키는 유리 재질의 새 인터페이스",
+            detail: "콘텐츠 위에 떠 있는 유리 레이어가 배경을 굴절·반사하고, 스크롤과 터치에 "
+                  + "반응해 모양이 변한다. 툴바·탭바·시트에 자동 적용된다."
+        ),
+        .init(
+            id: "sirikit", name: "SiriKit", tag: "음성·단축어 연동",
+            summary: "앱의 기능을 Siri와 단축어에 노출",
+            detail: "앱이 할 수 있는 동작을 시스템에 등록하면 음성 명령, 단축어, 잠금 화면, "
+                  + "액션 버튼에서 앱을 열지 않고 실행할 수 있다."
+        ),
+        .init(
+            id: "nearby-interaction", name: "Nearby Interaction", tag: "초광대역 정밀 측위",
+            summary: "근처 기기까지의 거리와 방향을 센티미터 단위로",
+            detail: "U1/U2 칩의 UWB 신호로 상대 기기가 얼마나 멀리, 어느 쪽에 있는지 측정한다. "
+                  + "AirTag 정밀 탐색이 이 기술이다."
+        ),
+        .init(
+            id: "widgetkit", name: "WidgetKit", tag: "위젯·라이브 액티비티",
+            summary: "앱을 열지 않고 홈 화면에서 정보를 보여주는 방법",
+            detail: "홈·잠금·대기 화면과 Watch 위젯, 실시간 진행 상황(라이브 액티비티)을 "
+                  + "SwiftUI로 만든다. 시스템이 미리 만든 화면을 대신 그려 배터리를 아낀다."
+        ),
+    ]
+}

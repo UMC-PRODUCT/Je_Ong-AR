@@ -29,14 +29,10 @@ class CardContentImageWriter {
     
     init(
         baseURL: URL,
-        cardBackgroundColor: UIColor = UIColor(
-            red: 238 / 255,
-            green: 238 / 255,
-            blue: 199 / 255,
-            alpha: 1.0
-        ),
+        cardBackgroundColor: UIColor = UIColor(white: 0.98, alpha: 1.0),
+        // 패널은 카드와 같은 비율(90 x 127mm)이다. 가로 카드 앞면이 아니다.
         cardWidth: Double = 680,
-        cardHeight: Double = 440,
+        cardHeight: Double = 960,
         scaleFactor: Double = 4
     ) {
         self.baseURL = baseURL
@@ -60,11 +56,9 @@ class CardContentImageWriter {
     }
     
     /// 특정 게임 카드의 이미지를 쓴다.
-    func writeImage(cardData: GameCard) throws {
+    func writeImage(cardData: TechCard) throws {
         let imageData = imageFrom(
-            engTitle: cardData.wordEng,
-            korTitle: cardData.wordKor,
-            image: cardData.image,
+            card: cardData,
             size: .init(width: scale(cardWidth), height: scale(cardHeight))
         )
         
@@ -72,64 +66,91 @@ class CardContentImageWriter {
         try imageData.write(to: desinationURL)
     }
     
-    /// 특정 텍스트가 포함된 이미지를 생성한다
-    private func imageFrom(
-        engTitle: String,
-        korTitle: String,
-        image: UIImage,
-        size: CGSize,
-        textColor: UIColor = .black
-    ) -> Data {
+    /// 패널에 그릴 이미지를 만든다.
+    ///
+    /// 세로 구성 — 로고 / 기술명 / 태그 / 설명 문단.
+    /// 수치는 아직 확정이 아니다. 텍스처 해상도와 부스에서의 읽기 거리가
+    /// 트레이드오프라 실물을 보고 정한다 (DESIGN.md §12).
+    private func imageFrom(card: TechCard, size: CGSize) -> Data {
         let renderer = UIGraphicsImageRenderer(size: size)
-        let pngData = renderer.pngData { context in
-            // 배경 그리기
+        let margin = size.width * 0.08
+        let contentWidth = size.width - margin * 2
+
+        return renderer.pngData { context in
             cardBackgroundColor.setFill()
             context.fill(CGRect(origin: .zero, size: size))
-            
-            // 이미지
-            let imageRect = CGRect(
-                origin: .init(x: scale(40), y: scale(80)),
-                size: .init(width: scale(280), height: scale(280))
-            )
-            image.draw(in: imageRect)
-            
-            // 단락 스타일
-            let paragraphStyle: NSMutableParagraphStyle = {
+
+            let centered: NSMutableParagraphStyle = {
                 let style = NSMutableParagraphStyle()
                 style.alignment = .center
                 return style
             }()
-            
-            // 영문 텍스트
-            let engTextRect = CGRect(
-                origin: .init(x: scale(336), y: scale(116)),
-                size: .init(width: scale(304), height: scale(80))
-            )
-            let engAttributedText = NSAttributedString(string: engTitle, attributes: [
-                .font: UIFont.arCoreTitle.withSize(scale(UIFont.arCoreTitle.pointSize)),
-                .paragraphStyle: paragraphStyle,
-                .foregroundColor: UIColor.black,
-                .strokeColor: UIColor.white,
-                .strokeWidth: -10,
-            ])
-            engAttributedText.draw(in: engTextRect)
-            
-            // 국문 텍스트
-            let korTextRect = CGRect(
-                origin: .init(x: scale(336), y: scale(280)),
-                size: .init(width: scale(304), height: scale(47))
-            )
-            let korAttributedText = NSAttributedString(string: korTitle, attributes: [
-                .font: UIFont.arCoreSubtitle.withSize(scale(UIFont.arCoreSubtitle.pointSize)),
-                .paragraphStyle: paragraphStyle,
-                .foregroundColor: UIColor.black,
-                .strokeColor: UIColor.white,
-                .strokeWidth: -6,
-            ])
-            korAttributedText.draw(in: korTextRect)
+
+            let justified: NSMutableParagraphStyle = {
+                let style = NSMutableParagraphStyle()
+                style.alignment = .left
+                style.lineSpacing = size.height * 0.008
+                return style
+            }()
+
+            // 내용 블록의 총 높이를 먼저 재고 세로 중앙에 놓는다.
+            // 설명 길이가 카드마다 달라서 위에서부터 쌓으면 짧은 카드는 아래가 크게 빈다.
+            let logoSide = size.width * 0.34
+            let nameFont = UIFont.arCoreTitle.withSize(size.height * 0.055)
+            let tagFont = UIFont.arCoreSubtitle.withSize(size.height * 0.028)
+            let detailFont = UIFont.arCoreSubtitle.withSize(size.height * 0.026)
+
+            let detailHeight = (card.detail as NSString).boundingRect(
+                with: CGSize(width: contentWidth, height: .greatestFiniteMagnitude),
+                options: [.usesLineFragmentOrigin, .usesFontLeading],
+                attributes: [.font: detailFont, .paragraphStyle: justified],
+                context: nil
+            ).height
+
+            let totalHeight = logoSide + size.height * 0.035
+                + nameFont.lineHeight * 1.15
+                + tagFont.lineHeight * 1.9
+                + size.height * 0.032
+                + detailHeight
+
+            var y = max(size.height * 0.06, (size.height - totalHeight) / 2)
+
+            // 로고
+            let logo = UIImage(named: card.logoAssetName)
+                ?? UIImage(systemName: "app.dashed")!
+            logo.draw(in: CGRect(x: (size.width - logoSide) / 2, y: y,
+                                 width: logoSide, height: logoSide))
+            y += logoSide + size.height * 0.035
+
+            // 기술명
+            let nameRect = CGRect(x: margin, y: y, width: contentWidth, height: nameFont.lineHeight * 2.2)
+            NSAttributedString(string: card.name, attributes: [
+                .font: nameFont,
+                .paragraphStyle: centered,
+                .foregroundColor: UIColor(white: 0.07, alpha: 1.0),
+            ]).draw(in: nameRect)
+            y += nameFont.lineHeight * 1.15
+
+            // 태그
+            NSAttributedString(string: card.tag, attributes: [
+                .font: tagFont,
+                .paragraphStyle: centered,
+                .foregroundColor: UIColor(white: 0.38, alpha: 1.0),
+            ]).draw(in: CGRect(x: margin, y: y, width: contentWidth, height: tagFont.lineHeight * 1.6))
+            y += tagFont.lineHeight * 1.9
+
+            // 구분선
+            UIColor(white: 0.82, alpha: 1.0).setFill()
+            context.fill(CGRect(x: margin, y: y, width: contentWidth, height: max(1, size.height * 0.002)))
+            y += size.height * 0.032
+
+            // 설명 문단
+            NSAttributedString(string: card.detail, attributes: [
+                .font: detailFont,
+                .paragraphStyle: justified,
+                .foregroundColor: UIColor(white: 0.18, alpha: 1.0),
+            ]).draw(in: CGRect(x: margin, y: y, width: contentWidth, height: detailHeight + detailFont.lineHeight))
         }
-        
-        return pngData
     }
     
     private func scale(_ scalar: Double) -> Double {

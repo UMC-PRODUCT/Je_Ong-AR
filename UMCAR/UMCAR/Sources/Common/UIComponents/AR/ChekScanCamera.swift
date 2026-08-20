@@ -10,7 +10,9 @@ import SwiftUI
 struct ChekScanCamera: View {
     // MARK: - Property
     @Binding var currentCount : Int
-    let maxCount: Int = 5
+    /// 채워야 할 총 개수. 카드 장수가 바뀌면 호출부에서 넘긴다
+    let maxCount: Int
+    let guideText: String
     
     // MARK: - Constants
     fileprivate enum CheckScanCameraConstants {
@@ -19,7 +21,6 @@ struct ChekScanCamera: View {
         static let horizonPadding: CGFloat = 63
         static let verticalPadding: CGFloat = 20
         static let cornerRadius: CGFloat = 20
-        static let guideText: String = "카메라로 주변을 천천히 찍어서 5개를 채워주세요"
         static let dropShadowSize: CGFloat = 4
     }
     
@@ -27,7 +28,7 @@ struct ChekScanCamera: View {
     var body: some View {
         VStack(spacing: CheckScanCameraConstants.mainVspacing, content: {
             checkList
-            guideText
+            guideLabel
         })
         .padding(.horizontal, CheckScanCameraConstants.horizonPadding)
         .padding(.vertical, CheckScanCameraConstants.verticalPadding)
@@ -50,8 +51,8 @@ struct ChekScanCamera: View {
     }
     
     /// 하단 가이드 텍스트
-    private var guideText: some View {
-        Text(CheckScanCameraConstants.guideText)
+    private var guideLabel: some View {
+        Text(guideText)
             .font(.semibold20)
             .foregroundStyle(Color.black01)
     }
@@ -59,5 +60,6 @@ struct ChekScanCamera: View {
 
 #Preview {
     @Previewable @State var currentCount: Int = 5
-    ChekScanCamera(currentCount: $currentCount)
+    ChekScanCamera(currentCount: $currentCount, maxCount: 9,
+                   guideText: "카드를 비추면 하나씩 채워집니다")
 }
