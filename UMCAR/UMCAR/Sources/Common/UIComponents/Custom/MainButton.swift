@@ -69,7 +69,11 @@ struct MainButton: View {
     /// - Parameter type: 이미지 타입
     /// - Returns: 뷰 반환
     private func imaegView(type: IconButtonType) -> some View {
+        // 아이콘 PDF 는 옛 초록(#416D3D) 단색 글리프다. 템플릿으로 뽑아
+        // 인디고 버튼 위에서 흰색으로 찍는다 — 에셋을 다시 그릴 필요가 없다.
         Image(type.image)
+            .renderingMode(.template)
+            .foregroundStyle(Color.grey000)
             .fixedSize()
     }
 }

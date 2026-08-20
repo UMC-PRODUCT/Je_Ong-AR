@@ -18,9 +18,9 @@ struct ARView: View {
     
     // MARK: - 전시 세팅을 위한 프로퍼티
     /// 패널 제목 폰트
-    let titleFont: UIFont = UMCARFontFamily.NPSFont.extraBold.font(size: 64)
+    let titleFont: UIFont = UMCARFontFamily.Pretendard.semiBold.font(size: 64)
     /// 패널 본문 폰트
-    let subtitleFont: UIFont = UMCARFontFamily.NPSFont.extraBold.font(size: 32)
+    let subtitleFont: UIFont = UMCARFontFamily.Pretendard.medium.font(size: 32)
     
     /// AR Resource Group에서 카드 뒷면 레퍼런스 이미지를 읽는다.
     ///

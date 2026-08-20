@@ -24,6 +24,9 @@ let project = Project(
                     "LSApplicationCategoryType": "public.app-category.education",         
                     "UIRequiredDeviceCapabilities": ["arkit"],
                     "UIRequiresFullScreen": true,
+                    // Big-Dipper 그레이 토큰은 다크에서 반전된다. 기존 UI 는 전부
+                    // 라이트 고정 색으로 짜여 있었고, 부스 전시 중 외관이 뒤집히면 안 된다.
+                    "UIUserInterfaceStyle": "Light",
                     "UILaunchScreen": [
                         "UIColorName": "",
                         "UIImageName": "",

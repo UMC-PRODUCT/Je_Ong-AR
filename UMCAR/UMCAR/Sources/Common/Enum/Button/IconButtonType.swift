@@ -47,7 +47,7 @@ enum IconButtonType {
     }
     
     var bgColor: Color {
-        return .green02
+        return .indigo500
     }
     
 }
