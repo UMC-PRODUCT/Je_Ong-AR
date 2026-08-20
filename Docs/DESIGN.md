@@ -241,7 +241,8 @@ ARImageAnchor.referenceImage.name  ==  TechCard.id  →  TechCard 조회
 
 - 카드 **90 × 127 mm** (A4 한 장에 4장, 100% 인쇄)
 - **명암 패턴 계열을 9종 전부 다르게.** 색만 다르면 오인식된다 (§2 정정 참조)
-- 로고 단독 금지 — 로고 + 기술명 텍스트 + 비대칭 배경
+- 로고 단독 금지 — 로고 + 기술명 텍스트 + 비대칭 배경.
+  **로고는 텍스트 판 안쪽에만 놓는다.** 평면 벡터라 크게 깔면 특징점 영역을 잠식한다
 - **무광 인쇄.** Apple 문서: *"reflections on those surfaces can interfere with detection"*
 - 실물 인쇄본을 촬영해 등록, 물리 크기를 정확히 입력
 - Xcode 품질 경고 0
@@ -355,8 +356,9 @@ Tools/verify_ar_resource_group.sh        # actool 컴파일 → assetutil로 물
   `SceneEvents.Update`에서 look-at).
 - **좌표계 실물 확인.** Apple 샘플 주석이라는 문서 근거는 있으나, 마커가 실제로
   카드에 겹치는지는 아직 눈으로 확인되지 않았다.
-- **실제 Apple 로고 미포함.** 지금 카드는 기술명 텍스트 + 패턴만 있다. 로고를 넣으면
-  특징점 분포가 바뀌므로 인식 재검증이 필요하다.
+- **Apple 상표 확인.** 카드에 Apple 기술 아이콘이 들어갔다. 부스 배포 인쇄물이므로
+  상표 가이드라인을 한 번 확인해 둘 것. (로고 자체는 반영 완료 — 인식 지표 재측정도
+  마쳤다.)
 
 ---
 

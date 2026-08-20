@@ -37,6 +37,10 @@ FONT_KR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                        "..", "UMCAR", "UMCAR", "Resources", "Font", "NPSfont_extrabold.ttf")
 
 OUT = os.environ.get("OUT_DIR", "./out")
+# 정규화된 Apple 기술 아이콘. Tools/normalize_logos.py 가 만든다.
+LOGO_DIR = os.environ.get("LOGO_DIR", os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "..",
+    "Docs", "Assets", "ReferenceCards", "logos"))
 
 # 특징 밀도 점검 격자. 셀 하나가 대략 7x7mm.
 GW, GH = 13, 18
@@ -48,6 +52,10 @@ MIN_EDGE = 10.0
 
 # 텍스트 판 영역 (비율). 주입 레이어는 이 안을 건드리지 않는다 — 가독성 보호.
 PLATE = (0.07, 0.375, 0.93, 0.575)
+
+# 로고 한 변 (카드 높이 대비). 텍스트 줄 수에 묶으면 두 줄짜리 이름만 로고가 커져
+# 9장의 인상이 흐트러진다. 고정값으로 통일한다.
+LOGO_FRAC = 0.065
 
 
 def font(path, size):
@@ -362,17 +370,26 @@ def fit_name(d, name, max_w, max_size):
     return lines, size
 
 
-def draw_text_plate(img, d, name, tag, bg):
+def draw_text_plate(img, d, name, tag, bg, logo_path=None):
     """
     텍스트 판. 텍스트 폭에 맞춰 판을 줄인다.
     판이 넓으면 좌우 여백이 평평해져 특징점 공백이 생기므로, 판은 글자에 밀착시키고
     남는 폭은 패턴이 차지하게 둔다. 반환값은 실제 판 사각형 (주입 제외 영역).
+
+    로고는 판 **안쪽 왼편**에만 놓는다. Apple 기술 아이콘은 평면 벡터라 특징점이
+    빈약하므로, 크게 깔면 인식에 쓸 고주파 영역을 그만큼 잡아먹는다. 판 안은 이미
+    주입 제외 영역이라 로고를 넣어도 특징 밀도가 더 나빠지지 않는다.
     """
     plate_dark = sum(bg) < 400          # 어두운 배경이면 밝은 판을 깐다
     plate_col = (250, 250, 250) if plate_dark else (16, 16, 18)
     text_col = (16, 16, 18) if plate_dark else (248, 248, 250)
 
-    max_w = (PLATE[2] - PLATE[0]) * CW * 0.9
+    has_logo = logo_path is not None and os.path.isfile(logo_path)
+
+    # 로고가 들어가면 글자가 쓸 수 있는 폭이 줄어든다
+    avail = (PLATE[2] - PLATE[0]) * CW * 0.9
+    max_w = avail * (0.74 if has_logo else 1.0)
+
     lines, size = fit_name(d, name, max_w, int(CH * 0.072))
     f = font(FONT_BLACK, size)
 
@@ -386,11 +403,17 @@ def draw_text_plate(img, d, name, tag, bg):
     tag_w = bbt[2] - bbt[0]
 
     gap = size * 0.2
-    inner_h = (sum(b[3] - b[1] for b in name_bbs) + gap * (len(lines) - 1)
-               + gap * 1.5 + (bbt[3] - bbt[1]))
-    inner_w = max(max(b[2] - b[0] for b in name_bbs), tag_w)
+    text_h = (sum(b[3] - b[1] for b in name_bbs) + gap * (len(lines) - 1)
+              + gap * 1.5 + (bbt[3] - bbt[1]))
+    text_w = max(max(b[2] - b[0] for b in name_bbs), tag_w)
 
-    # 판을 텍스트에 밀착 — 여백은 글자 크기에 비례
+    logo_side = CH * LOGO_FRAC if has_logo else 0
+    logo_gap = size * 0.42 if has_logo else 0
+
+    inner_h = max(text_h, logo_side)
+    inner_w = logo_side + logo_gap + text_w
+
+    # 판을 내용에 밀착 — 여백은 글자 크기에 비례
     pad_x = size * 0.35
     pad_y = size * 0.26
     cx = CW / 2
@@ -406,12 +429,32 @@ def draw_text_plate(img, d, name, tag, bg):
 
     d.rectangle([px0, py0, px1, py1], outline=text_col, width=max(3, int(CW * 0.006)))
 
-    y = py0 + pad_y
+    content_x = px0 + pad_x
+    if has_logo:
+        logo = Image.open(logo_path).convert("RGBA")
+        side = int(round(logo_side))
+        logo = logo.resize((side, side), Image.LANCZOS)
+        lx = int(round(content_x))
+        ly = int(round(py0 + pad_y + (inner_h - logo_side) / 2))
+        img.alpha_composite(logo, (lx, ly))
+        # 로고 둘레 테두리. Apple 아이콘은 평면이라 격자 셀 하나가 통째로 평평해질 수
+        # 있는데, 셀을 가로지르는 엣지가 생기면 그 공백이 사라진다.
+        d.rounded_rectangle(
+            [lx, ly, lx + side, ly + side],
+            radius=side * 0.22,
+            outline=text_col,
+            width=max(2, int(CW * 0.004)),
+        )
+        content_x += logo_side + logo_gap
+
+    # 글자는 로고 오른쪽 블록 안에서 가운데 정렬
+    text_cx = content_x + text_w / 2
+    y = py0 + pad_y + (inner_h - text_h) / 2
     for l, bb in zip(lines, name_bbs):
-        d.text((cx - (bb[2] - bb[0]) / 2 - bb[0], y - bb[1]), l, font=f, fill=text_col)
+        d.text((text_cx - (bb[2] - bb[0]) / 2 - bb[0], y - bb[1]), l, font=f, fill=text_col)
         y += (bb[3] - bb[1]) + gap
     y += gap * 0.5
-    d.text((cx - tag_w / 2 - bbt[0], y - bbt[1]), tag, font=ft, fill=text_col)
+    d.text((text_cx - tag_w / 2 - bbt[0], y - bbt[1]), tag, font=ft, fill=text_col)
 
     return (px0, py0, px1, py1)
 
@@ -511,13 +554,20 @@ def build(idx, card):
     composition_layer(d, rng, ink, bg)
     PATTERNS[card["pattern"]](d, rng, ink, bg)
 
-    # 판을 먼저 그린다 — 그래야 주입이 판 주변의 실제 공백을 메운다
-    plate = draw_text_plate(img, d, card["name"], card["tag"], bg)
-
-    # 측정 → 주입 3회. 추측이 아니라 실측으로 빈 영역을 메운다.
+    # 1단계: 판을 그리기 전에 카드 전면을 채운다.
+    # 판 아래가 비어 있으면 반투명 판을 통해 그 공백이 그대로 비쳐서, 나중에 아무리
+    # 주입해도 판 영역은 제외되므로 평평한 셀이 남는다. 그래서 먼저 전면을 메운다.
+    whole = (0, 0, 0, 0)
     for _ in range(3):
-        cells = edge_energy_grid(img)
-        if inject_detail(d, rng, cells, ink, bg, plate) == 0:
+        if inject_detail(d, rng, edge_energy_grid(img), ink, bg, whole) == 0:
+            break
+
+    plate = draw_text_plate(img, d, card["name"], card["tag"], bg,
+                            logo_path=os.path.join(LOGO_DIR, f"{cid}.png"))
+
+    # 2단계: 판을 올린 뒤 남은 공백을 메운다. 판 안쪽은 가독성 때문에 건드리지 않는다.
+    for _ in range(2):
+        if inject_detail(d, rng, edge_energy_grid(img), ink, bg, plate) == 0:
             break
 
     draw_orientation_marks(d, idx, ink, bg)

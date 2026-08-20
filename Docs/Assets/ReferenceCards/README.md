@@ -7,6 +7,7 @@
 - 파일: 1062 × 1500 px @ 300 DPI
 - 생성기: `Tools/gen_reference_cards.py`, 인쇄 시트: `Tools/make_print_sheets.py`
 - 9장 대조 보기: `cards/_contact_sheet.png`
+- 로고: `logos/*.png` (`Tools/normalize_logos.py`가 정규화)
 
 | # | 파일 | 표시명 | 태그 | 패턴 계열 |
 |---:|---|---|---|---|
@@ -21,6 +22,11 @@
 | 9 | `widgetkit.png` | WidgetKit | 위젯·라이브 액티비티 | L자 코너 조각 |
 
 패턴은 기술의 인상에 맞춰 배정했다 (측위→방사선, AI→그래프, 동기화→동심호 …).
+
+**로고는 텍스트 판 안쪽 왼편에만 놓는다.** Apple 기술 아이콘은 평면 벡터라 특징점이
+빈약하다. 크게 깔면 인식에 쓸 고주파 영역을 그만큼 잡아먹는다. 판 안은 이미 밀도 주입
+제외 영역이라 로고를 넣어도 특징 밀도가 더 나빠지지 않고, 로고 둘레에 테두리를 둘러
+격자 셀을 가로지르는 엣지를 만든다.
 우하단 인덱스 바 개수가 위 표의 번호다 — 실기기 테스트에서 어느 카드가 인식됐는지
 대조할 때 쓴다. 좌상단 웨지는 방향 표시다.
 
@@ -52,22 +58,25 @@ Apple 문서에서 확인한 제약:
 
 | 카드 | 최소 셀 | 평균 | 저밀도 셀 |
 |---|---:|---:|---:|
-| corelocation | 5 | 27.8 | 4/234 |
-| apple-intelligence | 10 | 30.5 | 0/234 |
-| cloudkit | 8 | 29.9 | 1/234 |
-| coreml | 10 | 26.0 | 0/234 |
-| foundation-models | 10 | 24.5 | 0/234 |
-| liquid-glass | 10 | 28.7 | 0/234 |
-| sirikit | 10 | 30.5 | 0/234 |
-| nearby-interaction | 10 | 30.0 | 0/234 |
-| widgetkit | 3 | 23.4 | 1/234 |
+| corelocation | 10 | 28.9 | 0/234 |
+| apple-intelligence | 6 | 30.8 | 4/234 |
+| cloudkit | 11 | 29.8 | 0/234 |
+| coreml | 10 | 26.2 | 0/234 |
+| foundation-models | 5 | 24.7 | 3/234 |
+| liquid-glass | 10 | 29.1 | 0/234 |
+| sirikit | 10 | 30.6 | 0/234 |
+| nearby-interaction | 5 | 29.9 | 4/234 |
+| widgetkit | 9 | 24.4 | 2/234 |
+
+로고가 있는 판 주변이 약한 셀로 남는다 — 플랫한 아이콘에서 불가피한 부분이다.
+카드 전면 기준으로는 공백이 없다.
 
 휘도 프로파일 상호 거리 (낮을수록 오인식 위험):
 
 ```
-apple-intelligence ↔ liquid-glass  60.0 / 255
-sirikit            ↔ widgetkit     60.3 / 255
-corelocation       ↔ sirikit       61.5 / 255
+apple-intelligence ↔ liquid-glass  58.2 / 255
+sirikit            ↔ widgetkit     60.1 / 255
+cloudkit           ↔ widgetkit     60.8 / 255
 ```
 
 ### ARKit이 실제로 보는 해상도(453x640, 흑백)에서
@@ -76,18 +85,18 @@ actool 다운샘플과 흑백 변환을 거친 뒤에도 유지되는지 확인�
 
 | 카드 | 최소 셀 | 저밀도 셀 |
 |---|---:|---:|
-| corelocation | 5 | 2/234 |
-| apple-intelligence | 9 | 0/234 |
-| cloudkit | 6 | 0/234 |
+| corelocation | 8 | 0/234 |
+| apple-intelligence | 5 | 1/234 |
+| cloudkit | 9 | 0/234 |
 | coreml | 8 | 0/234 |
-| foundation-models | 8 | 0/234 |
+| foundation-models | 4 | 3/234 |
 | liquid-glass | 8 | 0/234 |
 | sirikit | 9 | 0/234 |
-| nearby-interaction | 8 | 0/234 |
-| widgetkit | 3 | 1/234 |
+| nearby-interaction | 4 | 2/234 |
+| widgetkit | 8 | 0/234 |
 
-흑백 변환 후 휘도 최소거리: `apple-intelligence ↔ liquid-glass = 59.8/255`
-(원본 60.0에서 거의 그대로 — 구분도가 다운샘플을 견딘다)
+흑백 변환 후 휘도 최소거리: `apple-intelligence ↔ liquid-glass = 58.0/255`
+(원본 58.2에서 거의 그대로 — 구분도가 다운샘플을 견딘다)
 
 **이 지표는 ARKit 인식률의 대리 측정이지 보증이 아니다.** 실제 인식률은 실기기 + 실제
 인쇄물로만 확인된다.
@@ -173,9 +182,10 @@ mise exec tuist@4.155.0 -- tuist generate
 
 ## 아직 안 정해진 것
 
-- **실제 Apple 로고 미포함.** 지금은 기술명 텍스트 + 패턴만 있다. 로고를 넣으면 특징점 분포가
-  바뀌므로 인식 재검증이 필요하다. 부스 배포물에 Apple 상표를 쓰는 건 상표 가이드라인 확인
-  대상이다.
+- **Apple 상표.** 부스 배포 인쇄물에 Apple 기술 아이콘을 쓰므로 상표 가이드라인을
+  한 번 확인해 둘 것.
+- **로고 원본 해상도.** 일부 아이콘이 256x256이다. 90mm 카드에서 로고가 약 8mm이므로
+  300dpi 기준 필요 해상도는 넘지만, 크게 키우려면 고해상도 원본이 필요하다.
 - **카드 크기 90 × 127 mm는 검증 대상이다.** 인식 거리가 부족하면 키운다.
 - **패널 레이아웃 미정.** `cards.json`의 `detail`이 AR 패널에 어떻게 앉을지는
   `CardContentImageWriter` 수정과 함께 정한다.
@@ -186,6 +196,7 @@ mise exec tuist@4.155.0 -- tuist generate
 
 ```bash
 cd Tools
+python3 normalize_logos.py                 # 로고 원본 → logos/ (최초 1회)
 OUT_DIR=../Docs/Assets/ReferenceCards/cards python3 gen_reference_cards.py
 SRC_DIR=../Docs/Assets/ReferenceCards/cards \
 DST_DIR=../Docs/Assets/ReferenceCards/print python3 make_print_sheets.py
