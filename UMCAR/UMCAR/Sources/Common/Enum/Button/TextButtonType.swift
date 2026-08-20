@@ -29,24 +29,24 @@ enum TextButtonType {
     }
     
     var font: Font {
-        return .bold40
+        return .app(.largeTitle, weight: .semibold)
     }
     
     var color: Color {
         switch self {
         case .restart:
-            return .green09
+            return .grey000
         case .cardSprinkle(let onOff), .openPotal(let onOff), .start(let onOff):
-            return onOff ? .green09 : .offBtn
+            return onOff ? .grey000 : .grey500
         }
     }
     
     var bgColor: Color {
         switch self {
         case .restart:
-            return .green02
+            return .indigo500
         case .cardSprinkle(let onOff), .openPotal(let onOff), .start(let onOff):
-            return onOff ? .green02 : .gray01
+            return onOff ? .indigo500 : .grey200
         }
     }
     
@@ -57,9 +57,9 @@ enum TextButtonType {
     var shadowColor: Color {
         switch self {
         case .cardSprinkle(let onOff), .openPotal(let onOff), .start(let onOff):
-            return onOff ? .greenShadow : .offStartBtn
+            return onOff ? .indigo700 : .grey300
         case .restart:
-            return .greenShadow
+            return .indigo700
         }
     }
 }

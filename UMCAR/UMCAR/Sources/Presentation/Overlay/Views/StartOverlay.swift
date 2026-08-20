@@ -48,8 +48,7 @@ struct StartOverlay: View {
                 .whiteShadow()
             
             Text(StartOverlayConstants.guideMessage)
-                .font(.semibold24)
-                .foregroundStyle(Color.black)
+                .appFont(.title2, weight: .semibold, color: .grey900)
         }
         .safeAreaPadding(.horizontal, StartOverlayConstants.guidPadding)
     }

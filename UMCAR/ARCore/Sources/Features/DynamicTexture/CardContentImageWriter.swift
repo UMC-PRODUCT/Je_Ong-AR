@@ -9,6 +9,22 @@ import Foundation
 import UIKit
 import os.log
 
+/// AR 패널 텍스처용 팔레트.
+///
+/// ARCore 는 에셋 카탈로그가 없는 모듈이라 UMCAR 의 `Color.xcassets` 토큰을
+/// 참조할 수 없다. Big-Dipper 디자인 시스템의 라이트 값을 그대로 박아둔다 —
+/// 텍스처는 PNG 로 구워지므로 다크 모드 변형이 필요 없다.
+private enum PanelPalette {
+    /// indigo600 — 기술명
+    static let title = UIColor(red: 0x3A / 255, green: 0x5A / 255, blue: 0xD9 / 255, alpha: 1)
+    /// indigo200 — 구분선
+    static let divider = UIColor(red: 0xCC / 255, green: 0xD6 / 255, blue: 0xFF / 255, alpha: 1)
+    /// grey600 — 태그
+    static let tag = UIColor(red: 0x6D / 255, green: 0x78 / 255, blue: 0x82 / 255, alpha: 1)
+    /// grey800 — 설명 문단
+    static let detail = UIColor(red: 0x34 / 255, green: 0x36 / 255, blue: 0x3E / 255, alpha: 1)
+}
+
 class CardContentImageWriter {
     /// 배경 색상
     let cardBackgroundColor: UIColor
@@ -93,7 +109,7 @@ class CardContentImageWriter {
             NSAttributedString(string: card.name, attributes: [
                 .font: layout.nameFont,
                 .paragraphStyle: layout.centered,
-                .foregroundColor: UIColor(white: 0.07, alpha: 1.0),
+                .foregroundColor: PanelPalette.title,
             ]).draw(in: CGRect(x: layout.margin, y: y,
                                width: layout.contentWidth,
                                height: layout.nameFont.lineHeight * 2.2))
@@ -103,14 +119,14 @@ class CardContentImageWriter {
             NSAttributedString(string: card.tag, attributes: [
                 .font: layout.tagFont,
                 .paragraphStyle: layout.centered,
-                .foregroundColor: UIColor(white: 0.38, alpha: 1.0),
+                .foregroundColor: PanelPalette.tag,
             ]).draw(in: CGRect(x: layout.margin, y: y,
                                width: layout.contentWidth,
                                height: layout.tagFont.lineHeight * 1.6))
             y += layout.tagFont.lineHeight * PanelLayout.Ratio.tagLead
 
             // 구분선
-            UIColor(white: 0.82, alpha: 1.0).setFill()
+            PanelPalette.divider.setFill()
             context.fill(CGRect(x: layout.margin, y: y,
                                 width: layout.contentWidth,
                                 height: max(1, size.height * 0.002)))
@@ -120,7 +136,7 @@ class CardContentImageWriter {
             NSAttributedString(string: card.detail, attributes: [
                 .font: layout.detailFont,
                 .paragraphStyle: layout.justified,
-                .foregroundColor: UIColor(white: 0.18, alpha: 1.0),
+                .foregroundColor: PanelPalette.detail,
             ]).draw(in: CGRect(x: layout.margin, y: y,
                                width: layout.contentWidth,
                                height: layout.detailHeight + layout.detailFont.lineHeight))

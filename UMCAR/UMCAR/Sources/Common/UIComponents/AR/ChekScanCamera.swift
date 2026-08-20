@@ -22,6 +22,9 @@ struct ChekScanCamera: View {
         static let verticalPadding: CGFloat = 20
         static let cornerRadius: CGFloat = 20
         static let dropShadowSize: CGFloat = 4
+        /// 옛 check/emptyCheck PDF 의 자연 크기. SF Symbol 로 바꿔도 줄 폭이 그대로여야 한다.
+        static let checkBoxSide: CGFloat = 42
+        static let checkSymbolSize: CGFloat = 34
     }
     
     // MARK: - Body
@@ -41,20 +44,27 @@ struct ChekScanCamera: View {
     private var checkList: some View {
         HStack(spacing: CheckScanCameraConstants.listSpacing, content: {
             ForEach(.zero..<maxCount, id: \.self) { index in
-                if index < currentCount {
-                    Image(.check)
-                } else {
-                    Image(.emptyCheck)
-                }
+                checkBox(filled: index < currentCount)
             }
         })
     }
     
+    /// 스캔 진행 칸 하나.
+    ///
+    /// 옛 초록 PDF 아이콘 대신 SF Symbol 을 쓴다 — 인디고 토큰으로 직접 틴트되고,
+    /// 색을 바꾸려고 벡터 에셋을 다시 뽑을 일이 없다.
+    private func checkBox(filled: Bool) -> some View {
+        Image(systemName: filled ? "checkmark.square.fill" : "square")
+            .font(.system(size: CheckScanCameraConstants.checkSymbolSize, weight: .medium))
+            .foregroundStyle(filled ? Color.indigo500 : Color.grey300)
+            .frame(width: CheckScanCameraConstants.checkBoxSide,
+                   height: CheckScanCameraConstants.checkBoxSide)
+    }
+
     /// 하단 가이드 텍스트
     private var guideLabel: some View {
         Text(guideText)
-            .font(.semibold20)
-            .foregroundStyle(Color.black01)
+            .appFont(.title3, weight: .semibold, color: .grey900)
     }
 }
 

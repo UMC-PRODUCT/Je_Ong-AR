@@ -52,8 +52,7 @@ struct BrowsingOverlay: View {
 
     private var detectedCountChip: some View {
         Text("\(arViewModel.detectedCardCount) / \(Constants.totalCards)")
-            .font(.semibold20)
-            .foregroundStyle(Color.black01)
+            .appFont(.title3, weight: .semibold, color: .grey900)
             .monospacedDigit()
             .padding(.horizontal, Constants.chipHorizontalPadding)
             .padding(.vertical, Constants.chipVerticalPadding)
@@ -67,8 +66,7 @@ struct BrowsingOverlay: View {
             Image(systemName: "hand.tap.fill")
             Text(Constants.guideText)
         }
-        .font(.semibold24)
-        .foregroundStyle(Color.black01)
+        .appFont(.title2, weight: .semibold, color: .grey900)
         .padding(.horizontal, Constants.guideHorizontalPadding)
         .padding(.vertical, Constants.guideVerticalPadding)
         .background(Material.ultraThin)
