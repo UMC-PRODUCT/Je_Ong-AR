@@ -89,8 +89,7 @@ extension ARContainerViewController {
 
 /// ARSessionDelegate 구현
 extension ARContainerViewController: ARSessionDelegate {
-    /// 앵커 처리는 Task 10의 +ImageDetection에서 붙는다
     public func session(_ session: ARSession, didAdd anchors: [ARAnchor]) {
-        logger.debug("새 앵커 \(anchors.count)개")
+        handleAddedImageAnchors(anchors)
     }
 }

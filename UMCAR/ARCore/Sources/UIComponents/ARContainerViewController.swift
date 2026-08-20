@@ -31,6 +31,15 @@ public class ARContainerViewController: UIViewController {
     /// 씬에 대한 이벤트 구독을 보관
     var sceneSubscriptions: Set<AnyCancellable> = []
     
+    /// 카드 id → 히트 판 엔티티
+    var cardEntities: [String: ModelEntity] = [:]
+    
+    /// 카드 id → 패널 엔티티
+    var panelEntities: [String: ModelEntity] = [:]
+    
+    /// 인식된 카드 수. SwiftUI가 n/9로 표시한다
+    public var detectedCardCount: Int { cardEntities.count }
+    
     // MARK: 게임 진행과 관련된 속성
     let exhibitSettings: ExhibitSettings
     
@@ -62,6 +71,7 @@ public class ARContainerViewController: UIViewController {
     // MARK: - Life Cycle
     public override func viewDidLoad() {
         super.viewDidLoad()
+        TechCardComponent.registerComponent()
         setupUI()
         setupARView()
     }

@@ -50,6 +50,7 @@ struct ARView: View {
             ),
             exhibitPhase: $arViewModel.exhibitPhase,
             arError: $arViewModel.arError,
+            detectedCardCount: $arViewModel.detectedCardCount,
             triggerScanStart: $arViewModel.triggerScanStart
         )
         .overlay {

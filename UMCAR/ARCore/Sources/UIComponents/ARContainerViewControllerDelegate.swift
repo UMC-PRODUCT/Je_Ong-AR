@@ -10,4 +10,8 @@ public protocol ARContainerViewControllerDelegate: AnyObject {
     /// 전시 페이즈가 변경되었을 때 호출되는 메서드
     /// 현재 페이즈는 `exhibitPhase` 프로퍼티로 참조할 수 있다
     func didChangePhase(_ arContainer: ARContainerViewController)
+    
+    /// 새 카드를 인식했을 때 호출되는 메서드
+    /// 인식된 총 개수는 `detectedCardCount` 프로퍼티로 참조할 수 있다
+    func didDetectCard(_ arContainer: ARContainerViewController, cardID: String)
 }

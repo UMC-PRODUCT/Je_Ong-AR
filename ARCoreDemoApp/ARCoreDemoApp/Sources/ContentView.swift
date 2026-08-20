@@ -4,6 +4,7 @@ import ARCore
 
 public struct ContentView: View {
     @State var arError: Error?
+    @State var detectedCardCount: Int = 0
     @State var triggerScanStart = false
     @State var exhibitPhase: ExhibitPhase = .initialized
     
@@ -23,12 +24,15 @@ public struct ContentView: View {
                 ),
                 exhibitPhase: $exhibitPhase,
                 arError: $arError,
+                detectedCardCount: $detectedCardCount,
                 triggerScanStart: $triggerScanStart
             )
             .ignoresSafeArea()
             
             VStack {
                 Text("exhibitPhase: \(exhibitPhase)")
+                
+                Text("인식된 카드: \(detectedCardCount) / 9")
                 
                 Button("스캔 시작") {
                     triggerScanStart = true
