@@ -16,39 +16,24 @@ public struct ARContainer: UIViewControllerRepresentable {
     let gameSettings: GameSettings
     
     /// 현재 발생한 에러. 에러가 없으면 nil
-    @Binding var gamePhage: GamePhase
+    @Binding var exhibitPhase: ExhibitPhase
     
     /// 현재 발생한 에러. 에러가 없으면 nil
     @Binding var arError: Error?
     
-    /// 현재 인식된 평면 수
-    @Binding var currentDetectedPlanes: Int
-    
     /// 스캔 시작 트리거
     @Binding var triggerScanStart: Bool
     
-    /// 포털 생성 트리거
-    @Binding var triggerCreatePortal: Bool
-    
-    /// 카드 배치 트리거
-    @Binding var triggerPlaceCards: Bool
-    
     public init(
         gameSettings: GameSettings,
-        gamePhase: Binding<GamePhase>,
+        exhibitPhase: Binding<ExhibitPhase>,
         arError: Binding<Error?>,
-        currentDetectedPlanes: Binding<Int>,
-        triggerScanStart: Binding<Bool>,
-        triggerCreatePortal: Binding<Bool>,
-        triggerPlaceCards: Binding<Bool>
+        triggerScanStart: Binding<Bool>
     ) {
         self.gameSettings = gameSettings
-        self._gamePhage = gamePhase
+        self._exhibitPhase = exhibitPhase
         self._arError = arError
-        self._currentDetectedPlanes = currentDetectedPlanes
         self._triggerScanStart = triggerScanStart
-        self._triggerCreatePortal = triggerCreatePortal
-        self._triggerPlaceCards = triggerPlaceCards
     }
     
     public func makeUIViewController(context: Context) -> ARContainerViewController {
@@ -59,30 +44,12 @@ public struct ARContainer: UIViewControllerRepresentable {
     
     public func updateUIViewController(_ uiViewController: ARContainerViewController, context: Context) {
         if triggerScanStart {
-            uiViewController.startDetectingPlane()
+            uiViewController.startScanning()
             
             DispatchQueue.main.async {
                 triggerScanStart.toggle()
             }
         }
-        
-        if triggerCreatePortal {
-            uiViewController.createPortalAtCenter()
-            
-            DispatchQueue.main.async {
-                triggerCreatePortal.toggle()
-            }
-        }
-        
-        if triggerPlaceCards {
-            uiViewController.placeCardsFromPortal()
-            
-            DispatchQueue.main.async {
-                triggerPlaceCards.toggle()
-            }
-        }
-        
-                
     }
     
     public func makeCoordinator() -> Coordinator {
@@ -97,17 +64,11 @@ public struct ARContainer: UIViewControllerRepresentable {
             self.parent = parent
         }
         
-        public func arContainerDidFindPlaneAnchor(_ arContainer: ARContainerViewController) {
-            parent.currentDetectedPlanes += 1
-        }
         
-        public func arContainerDidLosePlaneAnchor(_ arContainer: ARContainerViewController) {
-            parent.currentDetectedPlanes -= 1
-        }
         
-        public func didChangeGamePhase(_ arContainer: ARContainerViewController) {
+        public func didChangePhase(_ arContainer: ARContainerViewController) {
             DispatchQueue.main.async {
-                self.parent.gamePhage = arContainer.gamePhase
+                self.parent.exhibitPhase = arContainer.exhibitPhase
             }
         }
         

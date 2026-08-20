@@ -60,7 +60,7 @@ struct PlayingGameOverlay: View {
     
     
     private func checkBtnAction() -> Bool {
-        return arViewModel.currentDetectedPlanes > 0 ? true : false
+        return arViewModel.detectedCardCount > 0 ? true : false
     }
     
 }

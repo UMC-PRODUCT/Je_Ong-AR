@@ -17,12 +17,8 @@ public struct GameSettings {
         gameCards.count
     }
     
-    /// 인식할 평면의 최소 면적
-    let minimumSizeOfPlane: Float
-    
-    public init(gameCards: [GameCard], minimumSizeOfPlane: Float, fontSetting: ARCoreFontSetting) {
+    public init(gameCards: [GameCard], fontSetting: ARCoreFontSetting) {
         self.gameCards = gameCards
-        self.minimumSizeOfPlane = minimumSizeOfPlane
         
         ARCoreFontSystem.shared.configure(with: fontSetting) // 폰트 설정
     }

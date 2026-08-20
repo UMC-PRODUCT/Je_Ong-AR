@@ -31,10 +31,6 @@ struct ARView: View {
         }
     }
     
-    var allPlanesDetected: Bool {
-        arViewModel.currentDetectedPlanes == gameCards.count
-    }
-    
     // ARCore 데이터 모델
     var gameCards: [GameCard] {
         if let selectedLevel {
@@ -50,8 +46,6 @@ struct ARView: View {
     @State var arViewModel: ARViewModel = .init()
     
     // MARK: - 게임 세팅을 위한 프로퍼티
-    /// 최소 평면 사이즈
-    let minimumSizeOfPlane: Float = 0.5
     /// 앞면 이미지 타이틀 폰트
     let titleFont: UIFont = UMCARFontFamily.NPSFont.extraBold.font(size: 64)
     /// 앞면 이미지 서브타이틀 폰트
@@ -61,31 +55,25 @@ struct ARView: View {
         ARContainer(
             gameSettings: .init(
                 gameCards: gameCards,
-                minimumSizeOfPlane: minimumSizeOfPlane,
                 fontSetting: .init(
                     title: titleFont,
                     subtitle: subtitleFont
                 )
             ),
-            gamePhase: $arViewModel.gamePhase,
+            exhibitPhase: $arViewModel.exhibitPhase,
             arError: $arViewModel.arError,
-            currentDetectedPlanes: $arViewModel.currentDetectedPlanes,
-            triggerScanStart: $arViewModel.triggerScanStart,
-            triggerCreatePortal: $arViewModel.triggerOpenPortal,
-            triggerPlaceCards: $arViewModel.triggerPlaceCards
+            triggerScanStart: $arViewModel.triggerScanStart
         )
         .overlay {
             Group {
-                switch arViewModel.gamePhase {
+                switch arViewModel.exhibitPhase {
                 case .initialized:
                     StartOverlay(arViewModel: arViewModel)
-                case .scanning, .scanned, .portalCreated:
-                    CheckScanOverlay(arViewModel: arViewModel, allPlanesDetected: allPlanesDetected)
-                case .playing:
+                case .scanning:
+                    CheckScanOverlay(arViewModel: arViewModel)
+                case .browsing:
                     PlayingGameOverlay(arViewModel: arViewModel)
                         .environmentObject(container)
-                default:
-                    EmptyView()
                 }
             }
         }

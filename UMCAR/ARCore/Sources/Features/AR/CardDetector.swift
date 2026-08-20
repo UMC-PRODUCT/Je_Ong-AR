@@ -28,7 +28,7 @@ import os.log
 /// }
 /// ```
 ///
-class CardDetector: ARFeatureProvider {
+class CardDetector {
     
     weak var arView: ARView?
     let logger = Logger.of("CardDetector")

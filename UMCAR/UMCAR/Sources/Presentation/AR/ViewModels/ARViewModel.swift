@@ -12,15 +12,13 @@ import ARCore
 class ARViewModel {
     // ARCore에서 요청하는 프로퍼티
     
-    /// 인식한 평면 수
-    var currentDetectedPlanes: Int = 0
+    /// 인식한 카드 수. Task 10에서 ARContainer 바인딩으로 이어진다
+    var detectedCardCount: Int = 0
     
-    /// 현재 게임 페이즈
-    var gamePhase: GamePhase = .initialized
+    /// 현재 전시 페이즈
+    var exhibitPhase: ExhibitPhase = .initialized
     
-    var triggerOpenPortal = false
     var triggerScanStart = false
-    var triggerPlaceCards = false
     
     var arError: Error?
 }
@@ -31,7 +29,4 @@ extension ARViewModel {
         triggerScanStart = true
     }
     
-    func placeCardsButtonTapped() {
-        triggerPlaceCards = true
-    }
 }

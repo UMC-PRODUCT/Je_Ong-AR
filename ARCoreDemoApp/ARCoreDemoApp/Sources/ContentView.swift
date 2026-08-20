@@ -3,11 +3,8 @@ import ARCore
 
 public struct ContentView: View {
     @State var arError: Error?
-    @State var currentDetectedPlanes: Int = 0
     @State var triggerScanStart = false
-    @State var triggerCreatePortal = false
-    @State var triggerPlaceCards = false
-    @State var gamePhase: GamePhase = .initialized
+    @State var exhibitPhase: ExhibitPhase = .initialized
     
     let gameCards: [GameCard] = [
         .init(
@@ -99,41 +96,25 @@ public struct ContentView: View {
             ARContainer(
                 gameSettings: GameSettings(
                     gameCards: gameCards,
-                    minimumSizeOfPlane: 0.5,
                     fontSetting: ARCoreFontSetting(
                         title: .systemFont(ofSize: 64, weight: .black),
                         subtitle: .systemFont(ofSize: 32, weight: .bold)
                     )
                 ),
-                gamePhase: $gamePhase,
+                exhibitPhase: $exhibitPhase,
                 arError: $arError,
-                currentDetectedPlanes: $currentDetectedPlanes,
-                triggerScanStart: $triggerScanStart,
-                triggerCreatePortal: $triggerCreatePortal,
-                triggerPlaceCards: $triggerPlaceCards
+                triggerScanStart: $triggerScanStart
             )
             .ignoresSafeArea()
             
             VStack {
-                Text("gamePhase: \(gamePhase)")
-                
-                Text("currentDetectedPlanes: \(currentDetectedPlanes)")
+                Text("exhibitPhase: \(exhibitPhase)")
                 
                 Button("스캔 시작") {
                     triggerScanStart = true
                 }
-                .disabled(gamePhase == .scanning || gamePhase == .portalCreated) // 스캔 시작 후 비활성화
+                .disabled(exhibitPhase != .initialized) // 스캔 시작 후 비활성화
                 
-                Button {
-                    if gamePhase == .scanned {
-                        triggerCreatePortal = true
-                    } else if gamePhase == .portalCreated {
-                        triggerPlaceCards = true
-                    }
-                } label: {
-                    Text(buttonText)
-                }
-                .disabled(buttonDisabled)
                 
                 
                                                 
@@ -155,23 +136,5 @@ public struct ContentView: View {
         }
     }
     
-    var buttonText: String {
-        switch gamePhase {
-        case .scanned:
-            return "포털 생성!"
-        case .portalCreated:
-            return "저 너머의 세계엔..?"
-        default:
-            return "..." // 다른 게임 단계에서는 버튼 텍스트를 다르게 설정하거나 숨길 수 있습니다.
-        }
-    }
     
-    var buttonDisabled: Bool {
-        switch gamePhase {
-        case .scanned, .portalCreated:
-            return false
-        default:
-            return true
-        }
-    }
 }

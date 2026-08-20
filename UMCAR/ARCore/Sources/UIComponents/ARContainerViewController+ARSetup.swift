@@ -38,12 +38,9 @@ extension ARContainerViewController {
     }
     
     func prepareFeatureProviders() {
-        self.planeVisualizer = PlaneVisualizer(arView: arView)
-        self.portalVisualizer = CentralPortalVisualizer(arView: arView)
-        self.cardPositioner = CardPositioner(arView: arView)
         self.cardDetector = CardDetector(arView: arView)
         
-        logger.info("✅ ARFeatureProviders 초기화 완료")
+        logger.info("✅ FeatureProviders 초기화 완료")
     }
     
     /// 현재 ARSession을 리셋한다
@@ -65,30 +62,26 @@ extension ARContainerViewController {
         logger.info("✅ ARSession have been started")
     }
     
+    /// 카드 스캔을 시작한다.
+    ///
+    /// 세션은 setupARView에서 이미 돌고 있다. 여기서 하는 일은 페이즈를 넘기는 것뿐이다 —
+    /// 예전 startDetectingPlane은 평면 감지를 켜는 일까지 했지만, 이미지 인식은
+    /// 세션 설정에 detectionImages가 들어 있으면 처음부터 동작한다.
+    public func startScanning() {
+        guard exhibitPhase == .initialized else { return }
+        exhibitPhase = .scanning
+    }
+    
     /// 현재 ARSession을 멈춘다
     public func pauseSession() {
-        removeDetectedPlaneEntities()
         arView.session.pause()
     }
 }
 
 /// ARSessionDelegate 구현
 extension ARContainerViewController: ARSessionDelegate {
-    /// 새로운 앵커가 추가되면 ARPlaneAnchor에 대해 시각화하는 엔티티를 추가한다
+    /// 앵커 처리는 Task 10의 +ImageDetection에서 붙는다
     public func session(_ session: ARSession, didAdd anchors: [ARAnchor]) {
-//        logger.debug("🔨 new anchors have been added: \(anchors.count)")
-        handleAddedAnchors(for: anchors)
-    }
-    
-    /// 기존 앵커가 업데이트되면 이전에 추가한 시각화 엔티티를 제거하고 새로운 시각화 엔티티를 만든다
-    public func session(_ session: ARSession, didUpdate anchors: [ARAnchor]) {
-//        logger.debug("🔨 some anchors have been updated: \(anchors.count)")
-        handleUpdatedAnchors(for: anchors)
-    }
-    
-    /// 앵커가 제거되면 대응하는 엔티티도 제거한다
-    public func session(_ session: ARSession, didRemove anchors: [ARAnchor]) {
-//        logger.debug("🔨 some anchors have been removed: \(anchors.count)")
-        handleRemovedAnchors(for: anchors)
+        logger.debug("새 앵커 \(anchors.count)개")
     }
 }

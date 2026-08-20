@@ -25,17 +25,8 @@ public class ARContainerViewController: UIViewController {
     /// 로거
     let logger = Logger.of("ARContainerViewController")
     
-    /// 기능을 제공하는 클래스들 (ARFeatureProvider)
-    var planeVisualizer: PlaneVisualizer?
-    var portalVisualizer: CentralPortalVisualizer?
-    var cardPositioner: CardPositioner?
+    /// 기능을 제공하는 클래스들
     var cardDetector: CardDetector?
-    
-    /// 인식된 평면의 시각화 엔티티들
-    var detectedPlaneEntities: [ARPlaneAnchor: AnchorEntity] = [:]
-    
-    /// 저장된 평면의 월드 변환 (위치 및 방향)
-    var savedPlaneTransforms: [UUID: simd_float4x4] = [:]
     
     /// 씬에 대한 이벤트 구독을 보관
     var sceneSubscriptions: Set<AnyCancellable> = []
@@ -46,11 +37,11 @@ public class ARContainerViewController: UIViewController {
     /// 게임카드 앞면 텍스쳐 이미지를 로드하는 객체
     let cardContentImageProvider: CardContentImageProvider
     
-    /// 현재 게임 진행 단계
-    public internal(set) var gamePhase: GamePhase = .initialized {
+    /// 현재 전시 진행 단계
+    public internal(set) var exhibitPhase: ExhibitPhase = .initialized {
         didSet {
-            logger.info("GamePhase changed to \(String(describing: self.gamePhase))")
-            delegate?.didChangeGamePhase(self)
+            logger.info("ExhibitPhase changed to \(String(describing: self.exhibitPhase))")
+            delegate?.didChangePhase(self)
         }
     }
     
