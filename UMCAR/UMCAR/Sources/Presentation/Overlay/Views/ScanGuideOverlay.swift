@@ -17,7 +17,10 @@ struct ScanGuideOverlay: View {
 
     private enum Constants {
         static let totalCards = 9
-        static let guideText = "책상 위 카드를 천천히 비춰주세요"
+        /// 인식은 즉시 되지 않는다. 가만히 기다리라고 말해주지 않으면
+        /// 관람객이 반응 없는 화면을 보고 카메라를 계속 움직인다 —
+        /// 그러면 더 안 잡힌다.
+        static let guideText = "카드에 카메라를 맞추고 2초간 기다려주세요"
     }
 
     var body: some View {

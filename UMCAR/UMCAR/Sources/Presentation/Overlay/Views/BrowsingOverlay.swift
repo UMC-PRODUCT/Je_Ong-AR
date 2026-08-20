@@ -24,7 +24,12 @@ struct BrowsingOverlay: View {
         static let guideVerticalPadding: CGFloat = 16
         static let guideBottomPadding: CGFloat = 60
         static let dropShadowSize: CGFloat = 4
+        static let guideStackSpacing: CGFloat = 6
+        static let scanHintSpacing: CGFloat = 8
         static let guideText = "카드를 터치하면 설명이 나타납니다"
+        /// 남은 카드를 찾을 때도 인식 대기는 똑같이 있다. 첫 장에서만
+        /// 안내하고 마면 2장째부터 다시 헤맨다.
+        static let scanHintText = "새 카드는 카메라를 맞추고 2초간 기다려주세요"
     }
 
     var body: some View {
@@ -61,12 +66,22 @@ struct BrowsingOverlay: View {
             .grayShadow4()
     }
 
+    /// 두 줄이다. 위는 지금 할 일(터치), 아래는 다음 카드를 찾는 법.
+    /// 아래를 작고 흐리게 둬서 위가 먼저 읽히게 한다.
     private var tapGuide: some View {
-        HStack(spacing: 10) {
-            Image(systemName: "hand.tap.fill")
-            Text(Constants.guideText)
+        VStack(spacing: Constants.guideStackSpacing) {
+            HStack(spacing: 10) {
+                Image(systemName: "hand.tap.fill")
+                Text(Constants.guideText)
+            }
+            .appFont(.title2, weight: .semibold, color: .grey900)
+
+            HStack(spacing: Constants.scanHintSpacing) {
+                Image(systemName: "camera.viewfinder")
+                Text(Constants.scanHintText)
+            }
+            .appFont(.subheadline, weight: .medium, color: .grey600)
         }
-        .appFont(.title2, weight: .semibold, color: .grey900)
         .padding(.horizontal, Constants.guideHorizontalPadding)
         .padding(.vertical, Constants.guideVerticalPadding)
         .background(Material.ultraThin)

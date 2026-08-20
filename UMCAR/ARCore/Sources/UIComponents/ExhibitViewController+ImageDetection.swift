@@ -32,9 +32,11 @@ extension ExhibitViewController {
                 physicalSize: imageAnchor.referenceImage.physicalSize
             )
 
-            let anchorEntity = AnchorEntity(anchor: imageAnchor)
-            anchorEntity.addChild(hit)
-            arView.scene.addAnchor(anchorEntity)
+            // ARKit 앵커에 직접 매달지 않는다. 그러면 매 프레임 자세 잡음이
+            // 그대로 나와 패널이 떤다 (PoseSmoother 참고).
+            worldRoot().addChild(hit)
+            hit.transform = Transform(matrix: imageAnchor.transform)
+            poseSmoothers[card.id] = PoseSmoother(pose: imageAnchor.transform)
 
             // 추적 상한을 넘겨 붙은 앵커는 isTracked가 false다. 그대로 켜면
             // 추적도 안 되는 카드에 테두리가 붙는다.
@@ -67,7 +69,27 @@ extension ExhibitViewController {
             else { continue }
 
             setCardVisible(imageAnchor.isTracked, cardID: card.id)
+
+            // 추적이 끊긴 자세는 믿을 게 못 된다. 마지막 안정된 자세를 그대로 둔다.
+            guard imageAnchor.isTracked, var smoother = poseSmoothers[card.id] else { continue }
+
+            if smoother.update(observed: imageAnchor.transform) {
+                cardEntities[card.id]?.transform = Transform(matrix: smoother.pose)
+            }
+            poseSmoothers[card.id] = smoother
         }
+    }
+
+    /// 카드를 담을 월드 앵커. 없으면 만든다.
+    ///
+    /// 월드 원점에 고정하므로 이 앵커의 자식 transform이 곧 월드 자세다.
+    private func worldRoot() -> AnchorEntity {
+        if let cardRoot { return cardRoot }
+
+        let root = AnchorEntity(world: matrix_identity_float4x4)
+        arView.scene.addAnchor(root)
+        cardRoot = root
+        return root
     }
 
     /// 앵커가 사라진 카드를 숨긴다.

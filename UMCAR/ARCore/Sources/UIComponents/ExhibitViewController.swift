@@ -34,6 +34,16 @@ public class ExhibitViewController: UIViewController {
     /// 카드 id → 패널 엔티티
     var panelEntities: [String: ModelEntity] = [:]
     
+    /// 카드 id → 떨림 필터. ARKit 앵커에 직접 붙이지 않는 이유는 PoseSmoother 참고
+    var poseSmoothers: [String: PoseSmoother] = [:]
+    
+    /// 카드 엔티티를 모두 담는 월드 앵커.
+    ///
+    /// 카드마다 AnchorEntity(anchor:)로 ARKit 앵커에 매달면 앵커의 매 프레임
+    /// 자세 잡음이 그대로 나온다. 월드 원점에 고정한 앵커 하나에 담고, 각
+    /// 카드의 자세는 필터를 거쳐 우리가 직접 넣는다.
+    var cardRoot: AnchorEntity?
+    
     /// 인식된 카드 수. SwiftUI가 n/9로 표시한다
     public var detectedCardCount: Int { cardEntities.count }
     
