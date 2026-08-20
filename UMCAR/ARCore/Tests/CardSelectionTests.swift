@@ -44,4 +44,18 @@ final class CardSelectionTests: XCTestCase {
         XCTAssertNil(selection.selected)
         XCTAssertEqual(change, .unchanged)
     }
+
+    func test_clear는_열린_카드를_닫는다() {
+        var selection = CardSelection()
+        _ = selection.tap("coreml")
+        let change = selection.clear()
+        XCTAssertNil(selection.selected)
+        XCTAssertEqual(change, .closed("coreml"))
+    }
+
+    func test_열린_카드가_없으면_clear는_아무것도_안_바꾼다() {
+        var selection = CardSelection()
+        XCTAssertEqual(selection.clear(), .unchanged)
+        XCTAssertNil(selection.selected)
+    }
 }

@@ -10,6 +10,9 @@ import RealityKit
 
 /// ARView 초기화, 해제 로직
 extension ExhibitViewController {
+    /// 동시에 추적할 카드 수. ARKit이 4장을 넘겨 받지 않는다.
+    static let maximumTrackedCards = 4
+
     // MARK: - Setup ARView
     
     /// 처음 ARView를 초기화한다
@@ -49,10 +52,14 @@ extension ExhibitViewController {
     public func resetSession() {
         let configuration = ARWorldTrackingConfiguration()
         configuration.detectionImages = exhibitSettings.referenceImages
-        // 0 = 추적 안 함. 추적을 켜면 동시 4장 상한에 걸리는데, 카드는 책상에
-        // 고정이라 추적이 필요 없다. 이때도 관측된 이미지마다 앵커가 붙는다
-        // (Apple: "ARKit creates image anchors for observed reference images").
-        configuration.maximumNumberOfTrackedImages = 0
+        // 추적을 켠다. 0으로 두면 Apple 문서대로 앵커 위치가 "몇 초에 한 번"만
+        // 갱신돼서, 카드를 옮기면 테두리가 옛 자리에 한참 남아 있다가 뒤늦게 튄다.
+        //
+        // 대가는 동시 4장 상한이다 ("The framework can track a maximum of four
+        // images simultaneously"). 다만 ARKit이 "one of the existing tracked images
+        // leaves the device's view" 하면 알아서 다른 카드로 교체한다. 부스에서
+        // 아이패드를 카드 위에 들면 화면에 2~3장이라 상한에 잘 안 닿는다.
+        configuration.maximumNumberOfTrackedImages = Self.maximumTrackedCards
         configuration.planeDetection = []
         // 실물 크기를 정확히 아는 상황에서 스케일 추정을 켜면 앵커가 흔들린다.
         configuration.automaticImageScaleEstimationEnabled = false
@@ -92,5 +99,15 @@ extension ExhibitViewController {
 extension ExhibitViewController: ARSessionDelegate {
     public func session(_ session: ARSession, didAdd anchors: [ARAnchor]) {
         handleAddedImageAnchors(anchors)
+    }
+
+    /// 추적 중인 카드는 매 프레임 여기로 온다. 보이는 것만 켜두려고 받는다.
+    public func session(_ session: ARSession, didUpdate anchors: [ARAnchor]) {
+        handleUpdatedImageAnchors(anchors)
+    }
+
+    /// 앵커가 사라지면 붙어 있던 테두리·패널도 같이 숨긴다.
+    public func session(_ session: ARSession, didRemove anchors: [ARAnchor]) {
+        handleRemovedImageAnchors(anchors)
     }
 }

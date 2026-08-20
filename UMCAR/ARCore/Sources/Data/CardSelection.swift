@@ -25,6 +25,18 @@ public struct CardSelection: Equatable {
 
     public init() {}
 
+    /// 선택을 강제로 놓는다.
+    ///
+    /// 탭이 아닌 이유로 닫아야 할 때 쓴다 — 열어둔 카드가 시야에서 사라지면
+    /// 패널도 같이 사라지므로, 선택만 남겨두면 "열린 게 없는데 안내도 안 뜨는"
+    /// 상태가 된다.
+    @discardableResult
+    public mutating func clear() -> Change {
+        guard let previous = selected else { return .unchanged }
+        selected = nil
+        return .closed(previous)
+    }
+
     /// 카드를 탭한다. `nil`은 빈 곳을 탭했다는 뜻이다.
     @discardableResult
     public mutating func tap(_ cardID: String?) -> Change {

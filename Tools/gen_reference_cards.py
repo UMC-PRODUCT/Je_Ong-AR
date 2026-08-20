@@ -54,7 +54,7 @@ MIN_EDGE = 10.0
 PLATE = (0.07, 0.375, 0.93, 0.575)
 
 # 카드 스타일.
-#   "plain"   — 배경 없음. 아이콘 + 글자만 (기본)
+#   "plain"   — 흰 배경에 아이콘만. 글자·테두리·방향마크 전부 없음 (기본)
 #   "icon"    — 아이콘 주역 + 인식용 배경 패턴
 #   "pattern" — 패턴이 주역, 로고는 판 안쪽 작게
 STYLE = os.environ.get("CARD_STYLE", "plain")
@@ -487,9 +487,14 @@ def draw_icon_layout(img, d, card, bg, ink):
     text_col = (246, 247, 248) if dark_bg else (16, 18, 20)
     sub_col = (170, 176, 182) if dark_bg else (92, 98, 104)
 
-    # 아이콘 — 카드 폭의 절반 이상. 부스에서 멀리서도 무엇인지 보이게 한다
-    side = int(CW * 0.52)
-    top = int(CH * 0.20)
+    # 아이콘 — 부스에서 멀리서도 무엇인지 보이게 한다.
+    #
+    # plain은 흰 배경에 아이콘뿐이라 아이콘이 유일한 특징이다. 카드 폭의 88%까지
+    # 키운 건 미감이 아니라 인식 때문이다 — 66%에서 88%로 키우자 휘도 최소거리가
+    # 7.5 → 13.6으로 올랐다.
+    icon_only = STYLE == "plain"
+    side = int(CW * (0.88 if icon_only else 0.52))
+    top = int((CH - side) / 2) if icon_only else int(CH * 0.20)
     pad = int(CW * 0.015)
     rects = []
     if os.path.isfile(logo_path):
@@ -497,6 +502,9 @@ def draw_icon_layout(img, d, card, bg, ink):
         lx = (CW - side) // 2
         img.alpha_composite(logo, (lx, top))
         rects.append((lx - pad, top - pad, lx + side + pad, top + side + pad))
+
+    if icon_only:
+        return rects
 
     y = top + side + int(CH * 0.045)
 
@@ -641,6 +649,10 @@ def build(idx, card):
     if STYLE == "icon":
         ink = tuple(int(bg[i] + (ink[i] - bg[i]) * 0.93) for i in range(3))
 
+    # plain은 9장 모두 흰 배경이다. 카드별 색조차 두지 않는다.
+    if STYLE == "plain":
+        bg = (255, 255, 255)
+
     img = Image.new("RGBA", (CW, CH), bg + (255,))
     d = ImageDraw.Draw(img)
 
@@ -670,7 +682,8 @@ def build(idx, card):
             if inject_detail(d, rng, edge_energy_grid(img), ink, bg, plate) == 0:
                 break
 
-    draw_orientation_marks(d, idx, ink, bg)
+    if STYLE != "plain":
+        draw_orientation_marks(d, idx, ink, bg)
 
     out = finalize(img)
     return cid, out, edge_energy_grid(out)

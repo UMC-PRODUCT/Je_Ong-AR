@@ -271,7 +271,7 @@ TEMPLATE = r"""<title>TechCards 캘리브레이션 시트</title>
 
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 18px;
   }
 
@@ -289,19 +289,6 @@ TEMPLATE = r"""<title>TechCards 캘리브레이션 시트</title>
   }
   .card:hover { border-color: var(--accent); background: var(--surface); }
   .card img { width: 100%; display: block; aspect-ratio: 90 / 127; object-fit: cover; }
-  .card figcaption { padding: 0 12px 12px; display: flex; flex-direction: column; gap: 3px; }
-
-  .card-id {
-    font-family: var(--f-mono);
-    font-size: 11px;
-    color: var(--ink-3);
-    display: flex;
-    justify-content: space-between;
-    gap: 8px;
-  }
-  .card-name { font-weight: 600; font-size: 14px; letter-spacing: -.01em; }
-  .card-tag { font-size: 12px; color: var(--ink-2); }
-  .card-pattern { font-family: var(--f-mono); font-size: 10.5px; color: var(--ink-3); }
 
   /* ---------------------------------------------------------------- 무대 */
 
@@ -462,7 +449,8 @@ TEMPLATE = r"""<title>TechCards 캘리브레이션 시트</title>
     <div class="panel-head">
       <span class="panel-title">2 · 카드 9장</span>
       <span class="panel-note">
-        카드를 누르면 실제 크기로 띄웁니다 · <kbd>←</kbd><kbd>→</kbd> 이동 · <kbd>Esc</kbd> 닫기
+        카드를 누르면 실제 크기로 띄웁니다 · <kbd>←</kbd><kbd>→</kbd> 이동 ·
+        <kbd>H</kbd> HUD 숨기기 · <kbd>Esc</kbd> 닫기
       </span>
     </div>
     <div style="padding:18px; display:flex; flex-direction:column; gap:16px;">
@@ -586,14 +574,9 @@ TEMPLATE = r"""<title>TechCards 캘리브레이션 시트</title>
     fig.tabIndex = 0;
     fig.setAttribute("role", "button");
     fig.setAttribute("aria-label", c.name + " 실제 크기로 띄우기");
-    fig.innerHTML =
-      '<img src="' + c.src + '" alt="' + c.name + ' 카드 뒷면">' +
-      '<figcaption>' +
-        '<span class="card-id"><span>' + String(i + 1).padStart(2, "0") + '</span><span>' + c.id + '</span></span>' +
-        '<span class="card-name">' + c.name + '</span>' +
-        '<span class="card-tag">' + c.tag + '</span>' +
-        '<span class="card-pattern">' + c.pattern + '</span>' +
-      '</figcaption>';
+    // 캡션 없이 카드만 보여준다. 카드에 글자가 없으므로 페이지에도 없어야
+    // 실제로 인쇄될 모습과 같다.
+    fig.innerHTML = '<img src="' + c.src + '" alt="' + c.name + '">';
     const open = () => openStage("one", i);
     fig.addEventListener("click", open);
     fig.addEventListener("keydown", (e) => {
