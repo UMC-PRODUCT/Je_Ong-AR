@@ -14,6 +14,58 @@
 
 **설계 문서:** `Docs/DESIGN.md` — 이 계획은 설계에서 논증을 가져온다. 실행자는 둘 다 읽는다.
 
+
+---
+
+## 실행 기록 (2026-08-21)
+
+**Task 1~13, 15 완료. Task 14(실기기 검증)만 남았다** — 사람이 인쇄물과 iPad로 해야 한다.
+
+| 페이즈 | 커밋 | 결과 |
+|---|---|---|
+| A. 안전망 | `5d5011e` `ed0e7a4` `3c6d8e9` | 테스트 타깃 신설, CardSelection·TechCard + 테스트 11개 |
+| B. 게임 절제 | `dd2478c` `27eb0d2` `b8ed769` `645b3cc` `03b7691` | 6,483줄 삭제 |
+| C. 인식 파이프라인 | `7ade9fc` `2c46560` `4300aa6` `fd47e5e` | 세션 전환 → 앵커 → 탭 → 패널 텍스처 |
+| D. 마감 | `(Task 13)` `(Task 15)` | 오버레이 3개, 리네이밍 |
+
+최종 검증: UMCAR·ARCoreDemoApp 양쪽 `BUILD SUCCEEDED`, ARCore 테스트 15개 통과,
+`verify_card_content.py` PASS, `verify_ar_resource_group.sh` PASS,
+게임 잔재 심볼 검색 0건.
+
+### 계획과 달라진 것
+
+계획서는 태스크를 기능 슬라이스로 잘랐지만, 실제로는 슬라이스 경계가 몇 군데
+어긋나 있었다. 모두 "중간 빌드가 깨지지 않게"를 기준으로 조정했다.
+
+- **Task 5를 Task 4보다 먼저 실행.** `WordDetailCard`/`DetailCardViewModel`이
+  `AccuracyType`을 소비해서 계획 순서로는 빌드가 깨진 채 커밋해야 했다.
+- **`FinishedOverlay`를 Task 7 → Task 4로.** `FailureWindow`를 쓴다.
+- **`CardPositioner`를 Task 10 → Task 7로.** `KonglishARProject`와
+  `ARFeatureProvider`를 둘 다 참조해 그 슬라이스에 딸려 왔다.
+- **`DynamicCardContentSystem`·`CardComponent`를 Task 12에서 삭제.** 계획에 없었다.
+  삭제된 usdz 카드 구조(`PlaneFront` 자식)에만 묶여 있어 영원히 매칭되지 않는
+  상태였다.
+- **`TechCard.logoAssetName`을 Task 8에서 추가.** 설계 §6에 있었는데 Task 3에서
+  빠뜨렸고, `GameCard.image`를 대체할 것이 없어 거기서 드러났다.
+- **`Tools/verify_card_content.py` 신설.** 계획에 없었다. Task 3의 유닛 테스트는
+  id와 빈 값만 보는데, 설계 §6이 위험으로 짚은 것은 본문이 어긋나는 경우다.
+  앱이 JSON을 읽지 않으므로 유닛 테스트로는 잡을 수 없어 별도 스크립트로 만들었다.
+- **Task 15 범위 축소.** `GameCard`/`GameSettings`/`GamePhase`가 각 슬라이스와
+  함께 이미 사라져서 리네이밍이 6개 파일로 끝났다.
+
+### 삽질 기록 (전부 커밋 메시지에도 있다)
+
+- `git rm` 목록에 없는 경로 + `|| 폴백` → 목록 전체가 실패하고 폴백만 실행됐다.
+  삭제된 줄 알고 넘어갔다가 grep으로 발견.
+- 정규식으로 SwiftUI 조건 분기 제거 → `if`만 지워지고 `else`가 남아 파싱 에러.
+- grep으로 삭제 심볼만 훑기 → `SceneEvents.Update` 구독 안의 호출이 안 걸려 빌드 실패.
+  심볼을 *부르는* 구독·등록 지점까지 봐야 한다.
+- 로고 이미지셋을 카드 id로 등록 → 같은 카탈로그의 AR 레퍼런스 이미지와 이름이 겹쳐
+  actool이 "Identical key for two renditions"로 실패. 로고 쪽에 네임스페이스를 줬다.
+- `UnlitMaterial`의 `.transparent(opacity: 0)` → 정수 리터럴이라 타입 추론 실패.
+- 패널 텍스트를 위에서부터 쌓기 → 설명이 짧은 카드는 하단 40%가 비었다.
+  `boundingRect`로 총 높이를 재고 세로 중앙 배치로 변경.
+
 ---
 
 ## 전역 제약
