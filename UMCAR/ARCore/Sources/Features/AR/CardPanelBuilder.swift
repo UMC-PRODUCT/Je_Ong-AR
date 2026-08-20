@@ -17,7 +17,10 @@ enum CardPanelBuilder {
     ///
     /// 카드와 같은 크기면 책상 높이에서 본문이 안 읽힌다. 텍스처는 2720x3840이라
     /// 키워도 뭉개지지 않는다 — 병목은 해상도가 아니라 실물 크기였다.
-    static let panelScale: Float = 1.3
+    ///
+    /// 1.8이면 실물 16.2 x 22.9cm, 대략 A4다. 여기에 PanelLayout의 본문 비율을
+    /// 곱하면 글자가 약 9mm로 선다.
+    static let panelScale: Float = 1.8
 
     /// 패널을 세우는 각도 (라디안).
     ///

@@ -19,12 +19,18 @@ final class CardPanelBuilderTests: XCTestCase {
         Float(cardSize.height) * CardPanelBuilder.panelScale / 2
     }
 
-    func test_패널이_카드보다_30퍼센트_크다() throws {
+    func test_패널이_카드보다_크게_만들어진다() throws {
         let panel = try makePanel()
         let extents = try XCTUnwrap(panel.model?.mesh.bounds.extents)
+        let scale = CardPanelBuilder.panelScale
 
-        XCTAssertEqual(extents.x, Float(cardSize.width) * 1.3, accuracy: 1e-4)
-        XCTAssertEqual(extents.z, Float(cardSize.height) * 1.3, accuracy: 1e-4)
+        // generatePlane에 실제로 배율이 먹었는지 본다
+        XCTAssertEqual(extents.x, Float(cardSize.width) * scale, accuracy: 1e-4)
+        XCTAssertEqual(extents.z, Float(cardSize.height) * scale, accuracy: 1e-4)
+
+        // 배율을 되돌리면 본문이 다시 안 읽힌다. PanelLayoutTests의
+        // 8mm 하한과 짝이다.
+        XCTAssertGreaterThanOrEqual(scale, 1.5, "카드 대비 이 정도는 커야 읽힌다")
     }
 
     func test_히트_판은_실물_카드_크기_그대로다() throws {
