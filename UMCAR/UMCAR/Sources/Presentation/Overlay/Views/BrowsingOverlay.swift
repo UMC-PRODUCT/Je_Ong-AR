@@ -24,6 +24,10 @@ struct BrowsingOverlay: View {
 
     var body: some View {
         Color.clear
+            // 이게 없으면 화면 전체를 덮은 Color가 탭을 삼켜 ARView가 못 받는다.
+            // 카드 탭을 ARView가 직접 받는 구조라 배경은 히트 테스트에서 빠져야 한다.
+            // 아래 overlay와 pauseButton은 이 뒤에 붙으므로 탭이 그대로 살아 있다.
+            .allowsHitTesting(false)
             .overlay(alignment: .top) {
                 detectedCountChip
             }

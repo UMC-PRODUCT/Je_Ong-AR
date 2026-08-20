@@ -28,12 +28,24 @@ extension ExhibitViewController {
             .receivesLighting
         ]
         
-        resetSession()
+        // 카메라 프리뷰만 먼저 띄운다. 이미지 인식은 startScanning()에서 켠다.
+        //
+        // 인식을 여기서 켜면 시작 버튼을 누르기 전에 앵커가 도착한다. ARKit은
+        // 레퍼런스 이미지마다 앵커를 "정확히 한 번" 붙이므로 그 앵커는 다시 오지
+        // 않고, .scanning으로 넘어가도 전이시킬 앵커가 없어 .browsing에 못 간다.
+        runPreviewSession()
         
         logger.info("✅ ARView have been setup")
     }
     
-    /// 현재 ARSession을 리셋한다
+    /// 인식 없이 카메라 프리뷰만 돌린다. 시작 화면 배경용이다.
+    private func runPreviewSession() {
+        let configuration = ARWorldTrackingConfiguration()
+        configuration.planeDetection = []
+        arView.session.run(configuration)
+    }
+    
+    /// 이미지 인식을 켜고 세션을 리셋한다
     public func resetSession() {
         let configuration = ARWorldTrackingConfiguration()
         configuration.detectionImages = exhibitSettings.referenceImages
@@ -61,12 +73,13 @@ extension ExhibitViewController {
     
     /// 카드 스캔을 시작한다.
     ///
-    /// 세션은 setupARView에서 이미 돌고 있다. 여기서 하는 일은 페이즈를 넘기는 것뿐이다 —
-    /// 예전 startDetectingPlane은 평면 감지를 켜는 일까지 했지만, 이미지 인식은
-    /// 세션 설정에 detectionImages가 들어 있으면 처음부터 동작한다.
+    /// **페이즈를 먼저 올리고 세션을 돌린다.** 순서가 바뀌면 앵커가 .initialized
+    /// 상태에서 도착해 browsing 전이를 놓친다 — ARKit은 레퍼런스 이미지마다 앵커를
+    /// 정확히 한 번만 붙이므로 그 기회는 다시 오지 않는다.
     public func startScanning() {
         guard exhibitPhase == .initialized else { return }
         exhibitPhase = .scanning
+        resetSession()
     }
     
     /// 현재 ARSession을 멈춘다
