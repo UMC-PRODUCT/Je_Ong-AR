@@ -48,7 +48,11 @@ let project = Project(
                 base: [
                     "MARKETING_VERSION": .string(marketingVersion),
                     "CURRENT_PROJECT_VERSION": .string(currentProjectVersion),
-                    "ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS": "YES"
+                    "ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS": "YES",
+                    // 여기 없으면 tuist generate 할 때마다 서명 설정이 날아가
+                    // 실기기 빌드가 "requires a development team"으로 깨진다.
+                    "DEVELOPMENT_TEAM": "2Z52RL5Y3M",
+                    "CODE_SIGN_STYLE": "Automatic"
                 ]
             )
         ),
