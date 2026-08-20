@@ -23,6 +23,8 @@ extension ARContainerViewController {
         DynamicCardContentSystem.imageProvider = cardContentImageProvider
         DynamicCardContentSystem.registerSystem()
         
+        // 이걸 빠뜨리면 ARView가 세션을 제 마음대로 구성하면서 detectionImages가 덮인다
+        arView.automaticallyConfigureSession = false
         arView.session.delegate = self
         
         arView.environment.sceneUnderstanding.options = [
@@ -46,7 +48,14 @@ extension ARContainerViewController {
     /// 현재 ARSession을 리셋한다
     public func resetSession() {
         let configuration = ARWorldTrackingConfiguration()
-        configuration.planeDetection = [.vertical]
+        configuration.detectionImages = exhibitSettings.referenceImages
+        // 0 = 추적 안 함. 추적을 켜면 동시 4장 상한에 걸리는데, 카드는 책상에
+        // 고정이라 추적이 필요 없다. 이때도 관측된 이미지마다 앵커가 붙는다
+        // (Apple: "ARKit creates image anchors for observed reference images").
+        configuration.maximumNumberOfTrackedImages = 0
+        configuration.planeDetection = []
+        // 실물 크기를 정확히 아는 상황에서 스케일 추정을 켜면 앵커가 흔들린다.
+        configuration.automaticImageScaleEstimationEnabled = false
         
         if isDebugModeEnabled {
             arView.debugOptions = [
@@ -57,7 +66,7 @@ extension ARContainerViewController {
             ]
         }
         
-        arView.session.run(configuration)
+        arView.session.run(configuration, options: [.resetTracking, .removeExistingAnchors])
         
         logger.info("✅ ARSession have been started")
     }

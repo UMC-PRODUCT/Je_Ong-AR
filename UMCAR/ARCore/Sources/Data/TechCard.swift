@@ -15,8 +15,11 @@ public struct TechCard: Identifiable, Hashable {
     public let summary: String
     public let detail: String
 
-    /// 패널에 그릴 로고의 에셋 이름. 기본값은 id와 같다 —
-    /// Tools/normalize_logos.py가 로고를 카드 id로 저장하기 때문이다.
+    /// 패널에 그릴 로고의 에셋 이름.
+    ///
+    /// 네임스페이스가 붙는다. 로고 이미지셋을 카드 id 그대로 두면 같은 카탈로그의
+    /// AR 레퍼런스 이미지와 이름이 겹쳐 actool이 "Identical key for two renditions"로
+    /// 실패한다. 레퍼런스 이미지 이름은 TechCard.id와 같아야 하므로 로고 쪽에 준다.
     public let logoAssetName: String
 
     public init(id: String, name: String, tag: String, summary: String, detail: String,
@@ -26,7 +29,7 @@ public struct TechCard: Identifiable, Hashable {
         self.tag = tag
         self.summary = summary
         self.detail = detail
-        self.logoAssetName = logoAssetName ?? id
+        self.logoAssetName = logoAssetName ?? "TechLogos/\(id)"
     }
 }
 

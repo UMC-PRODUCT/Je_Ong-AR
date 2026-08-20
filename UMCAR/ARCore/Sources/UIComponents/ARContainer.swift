@@ -13,7 +13,7 @@ import SwiftUI
  */
 public struct ARContainer: UIViewControllerRepresentable {
     // MARK: - Properties
-    let gameSettings: GameSettings
+    let exhibitSettings: ExhibitSettings
     
     /// 현재 발생한 에러. 에러가 없으면 nil
     @Binding var exhibitPhase: ExhibitPhase
@@ -25,19 +25,19 @@ public struct ARContainer: UIViewControllerRepresentable {
     @Binding var triggerScanStart: Bool
     
     public init(
-        gameSettings: GameSettings,
+        exhibitSettings: ExhibitSettings,
         exhibitPhase: Binding<ExhibitPhase>,
         arError: Binding<Error?>,
         triggerScanStart: Binding<Bool>
     ) {
-        self.gameSettings = gameSettings
+        self.exhibitSettings = exhibitSettings
         self._exhibitPhase = exhibitPhase
         self._arError = arError
         self._triggerScanStart = triggerScanStart
     }
     
     public func makeUIViewController(context: Context) -> ARContainerViewController {
-        let viewController = ARContainerViewController(gameSettings: gameSettings)
+        let viewController = ARContainerViewController(exhibitSettings: exhibitSettings)
         viewController.delegate = context.coordinator
         return viewController
     }

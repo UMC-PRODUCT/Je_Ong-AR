@@ -1,4 +1,4 @@
 {
   "info" : { "author" : "xcode", "version" : 1 },
-  "properties" : { "provides-namespace" : false }
+  "properties" : { "provides-namespace" : true }
 }

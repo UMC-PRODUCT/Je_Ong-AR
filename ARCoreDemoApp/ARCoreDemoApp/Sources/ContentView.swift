@@ -1,4 +1,5 @@
 import SwiftUI
+import ARKit
 import ARCore
 
 public struct ContentView: View {
@@ -11,8 +12,10 @@ public struct ContentView: View {
     public var body: some View {
         ZStack {
             ARContainer(
-                gameSettings: GameSettings(
-                    gameCards: TechCard.all,
+                exhibitSettings: ExhibitSettings(
+                    cards: TechCard.all,
+                    referenceImages: ARReferenceImage.referenceImages(
+                        inGroupNamed: "TechCards", bundle: nil) ?? [],
                     fontSetting: ARCoreFontSetting(
                         title: .systemFont(ofSize: 64, weight: .black),
                         subtitle: .systemFont(ofSize: 32, weight: .bold)

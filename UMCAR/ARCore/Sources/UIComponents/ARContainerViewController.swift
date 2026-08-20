@@ -32,7 +32,7 @@ public class ARContainerViewController: UIViewController {
     var sceneSubscriptions: Set<AnyCancellable> = []
     
     // MARK: 게임 진행과 관련된 속성
-    let gameSettings: GameSettings
+    let exhibitSettings: ExhibitSettings
     
     /// 게임카드 앞면 텍스쳐 이미지를 로드하는 객체
     let cardContentImageProvider: CardContentImageProvider
@@ -46,10 +46,10 @@ public class ARContainerViewController: UIViewController {
     }
     
     // MARK: - Init
-    init(gameSettings: GameSettings) {
-        self.gameSettings = gameSettings
+    init(exhibitSettings: ExhibitSettings) {
+        self.exhibitSettings = exhibitSettings
         self.cardContentImageProvider = CardContentImageProvider(
-            allCards: gameSettings.gameCards
+            allCards: exhibitSettings.cards
         )
         
         super.init(nibName: nil, bundle: nil)
