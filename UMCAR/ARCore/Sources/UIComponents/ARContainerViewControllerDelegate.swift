@@ -14,4 +14,7 @@ public protocol ARContainerViewControllerDelegate: AnyObject {
     /// 새 카드를 인식했을 때 호출되는 메서드
     /// 인식된 총 개수는 `detectedCardCount` 프로퍼티로 참조할 수 있다
     func didDetectCard(_ arContainer: ARContainerViewController, cardID: String)
+    
+    /// 열린 패널이 바뀌었을 때 호출되는 메서드. nil이면 열린 패널이 없다
+    func didChangeSelection(_ arContainer: ARContainerViewController, cardID: String?)
 }

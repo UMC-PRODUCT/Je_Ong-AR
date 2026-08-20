@@ -24,6 +24,9 @@ public struct ARContainer: UIViewControllerRepresentable {
     /// 인식된 카드 수
     @Binding var detectedCardCount: Int
     
+    /// 열린 패널의 카드 id. 없으면 nil
+    @Binding var selectedCardID: String?
+    
     /// 스캔 시작 트리거
     @Binding var triggerScanStart: Bool
     
@@ -32,12 +35,14 @@ public struct ARContainer: UIViewControllerRepresentable {
         exhibitPhase: Binding<ExhibitPhase>,
         arError: Binding<Error?>,
         detectedCardCount: Binding<Int>,
+        selectedCardID: Binding<String?>,
         triggerScanStart: Binding<Bool>
     ) {
         self.exhibitSettings = exhibitSettings
         self._exhibitPhase = exhibitPhase
         self._arError = arError
         self._detectedCardCount = detectedCardCount
+        self._selectedCardID = selectedCardID
         self._triggerScanStart = triggerScanStart
     }
     
@@ -74,6 +79,12 @@ public struct ARContainer: UIViewControllerRepresentable {
         public func didDetectCard(_ arContainer: ARContainerViewController, cardID: String) {
             DispatchQueue.main.async {
                 self.parent.detectedCardCount = arContainer.detectedCardCount
+            }
+        }
+        
+        public func didChangeSelection(_ arContainer: ARContainerViewController, cardID: String?) {
+            DispatchQueue.main.async {
+                self.parent.selectedCardID = cardID
             }
         }
         

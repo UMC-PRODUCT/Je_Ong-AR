@@ -12,8 +12,11 @@ import ARCore
 class ARViewModel {
     // ARCore에서 요청하는 프로퍼티
     
-    /// 인식한 카드 수. Task 10에서 ARContainer 바인딩으로 이어진다
+    /// 인식한 카드 수
     var detectedCardCount: Int = 0
+    
+    /// 열린 패널의 카드 id. 없으면 nil
+    var selectedCardID: String?
     
     /// 현재 전시 페이즈
     var exhibitPhase: ExhibitPhase = .initialized

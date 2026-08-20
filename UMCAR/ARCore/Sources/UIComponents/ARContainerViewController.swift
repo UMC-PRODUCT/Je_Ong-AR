@@ -25,9 +25,6 @@ public class ARContainerViewController: UIViewController {
     /// 로거
     let logger = Logger.of("ARContainerViewController")
     
-    /// 기능을 제공하는 클래스들
-    var cardDetector: CardDetector?
-    
     /// 씬에 대한 이벤트 구독을 보관
     var sceneSubscriptions: Set<AnyCancellable> = []
     
@@ -39,6 +36,9 @@ public class ARContainerViewController: UIViewController {
     
     /// 인식된 카드 수. SwiftUI가 n/9로 표시한다
     public var detectedCardCount: Int { cardEntities.count }
+    
+    /// 어느 카드의 패널이 열려 있는지. 규칙은 CardSelection에 있고 테스트로 검증된다
+    var selection = CardSelection()
     
     // MARK: 게임 진행과 관련된 속성
     let exhibitSettings: ExhibitSettings
@@ -74,6 +74,7 @@ public class ARContainerViewController: UIViewController {
         TechCardComponent.registerComponent()
         setupUI()
         setupARView()
+        setupTapGesture()
     }
     
     public override func viewDidDisappear(_ animated: Bool) {

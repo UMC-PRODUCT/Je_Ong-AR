@@ -32,17 +32,9 @@ extension ARContainerViewController {
             .receivesLighting
         ]
         
-        prepareFeatureProviders()
-        
         resetSession()
         
         logger.info("✅ ARView have been setup")
-    }
-    
-    func prepareFeatureProviders() {
-        self.cardDetector = CardDetector(arView: arView)
-        
-        logger.info("✅ FeatureProviders 초기화 완료")
     }
     
     /// 현재 ARSession을 리셋한다

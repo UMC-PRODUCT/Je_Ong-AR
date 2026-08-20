@@ -5,6 +5,7 @@ import ARCore
 public struct ContentView: View {
     @State var arError: Error?
     @State var detectedCardCount: Int = 0
+    @State var selectedCardID: String?
     @State var triggerScanStart = false
     @State var exhibitPhase: ExhibitPhase = .initialized
     
@@ -25,6 +26,7 @@ public struct ContentView: View {
                 exhibitPhase: $exhibitPhase,
                 arError: $arError,
                 detectedCardCount: $detectedCardCount,
+                selectedCardID: $selectedCardID,
                 triggerScanStart: $triggerScanStart
             )
             .ignoresSafeArea()
@@ -33,6 +35,8 @@ public struct ContentView: View {
                 Text("exhibitPhase: \(exhibitPhase)")
                 
                 Text("인식된 카드: \(detectedCardCount) / 9")
+                
+                Text("열린 패널: \(selectedCardID ?? "없음")")
                 
                 Button("스캔 시작") {
                     triggerScanStart = true
