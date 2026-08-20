@@ -60,9 +60,10 @@ struct ARView: View {
                 case .initialized:
                     StartOverlay(arViewModel: arViewModel)
                 case .scanning:
-                    CheckScanOverlay(arViewModel: arViewModel)
+                    ScanGuideOverlay(arViewModel: arViewModel)
+                        .environmentObject(container)
                 case .browsing:
-                    PlayingGameOverlay(arViewModel: arViewModel)
+                    BrowsingOverlay(arViewModel: arViewModel)
                         .environmentObject(container)
                 }
             }
