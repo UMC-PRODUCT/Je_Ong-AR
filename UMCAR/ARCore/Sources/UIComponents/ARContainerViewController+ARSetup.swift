@@ -19,10 +19,6 @@ extension ARContainerViewController {
             await self.cardContentImageProvider.loadAllImages()
         }
         
-        // 시스템 등록
-        DynamicCardContentSystem.imageProvider = cardContentImageProvider
-        DynamicCardContentSystem.registerSystem()
-        
         // 이걸 빠뜨리면 ARView가 세션을 제 마음대로 구성하면서 detectionImages가 덮인다
         arView.automaticallyConfigureSession = false
         arView.session.delegate = self
