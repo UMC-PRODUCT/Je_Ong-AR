@@ -60,19 +60,20 @@ struct ExitOptionWindow: View {
         VStack {
             ZStack {
                 RoundedRectangle(cornerRadius: ExitOptionWindowConstants.cornerRadius)
-                    .fill(Color.green02)
+                    .fill(Color.indigo500)
                     .frame(width: ExitOptionWindowConstants.btnSize, height: ExitOptionWindowConstants.btnSize)
-                    .mainButtonShadow(shadowColor: Color.greenShadow, yOffset: ExitOptionWindowConstants.btnShadowOffset)
+                    .mainButtonShadow(shadowColor: Color.indigo700, yOffset: ExitOptionWindowConstants.btnShadowOffset)
                 
                 Image(image)
+                    .renderingMode(.template)
                     .resizable()
+                    .foregroundStyle(Color.grey000)
                     .frame(width: ExitOptionWindowConstants.imageSize, height: ExitOptionWindowConstants.imageSize)
                 
             }
             
             Text(btnText)
-                .font(.bold32)
-                .foregroundStyle(Color.black01)
+                .appFont(.title1, weight: .semibold, color: .grey900)
         }
     }
 }

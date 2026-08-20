@@ -80,7 +80,7 @@ enum ButtonType {
         case .text(let type):
             return type.shadowColor
         case .icon:
-            return .greenShadow
+            return .indigo700
         }
     }
 }

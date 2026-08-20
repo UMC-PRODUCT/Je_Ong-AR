@@ -34,7 +34,7 @@ CW, CH = W * SS, H * SS
 FONT_BLACK = "/System/Library/Fonts/Supplemental/Arial Black.ttf"
 # 한글 태그용. 프로젝트가 이미 쓰는 폰트라 부스 인쇄물과 앱 UI의 인상이 어긋나지 않는다.
 FONT_KR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                       "..", "UMCAR", "UMCAR", "Resources", "Font", "NPSfont_extrabold.ttf")
+                       "..", "UMCAR", "UMCAR", "Resources", "Font", "Pretendard-SemiBold.otf")
 
 OUT = os.environ.get("OUT_DIR", "./out")
 # 정규화된 Apple 기술 아이콘. Tools/normalize_logos.py 가 만든다.

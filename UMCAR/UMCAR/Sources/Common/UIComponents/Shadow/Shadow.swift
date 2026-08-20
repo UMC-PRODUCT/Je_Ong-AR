@@ -22,27 +22,27 @@ struct MainButtonShadow: ViewModifier {
 struct WhiteButtonShadow: ViewModifier {
     func body(content: Content) -> some View {
         content
-            .shadow(color: .gray01, radius: 0, x: 0, y: 4)
+            .shadow(color: .grey200, radius: 0, x: 0, y: 4)
     }
 }
 
 struct GrayShadow: ViewModifier {
     func body(content: Content) -> some View {
         content
-            .shadow(color: .gray01, radius: 0, x: 0, y: 8)
+            .shadow(color: .grey200, radius: 0, x: 0, y: 8)
     }
 }
 
 struct GrayShadow4: ViewModifier {
     func body(content: Content) -> some View {
         content
-            .shadow(color: .gray01, radius: 0, x: 0, y: 4)
+            .shadow(color: .grey200, radius: 0, x: 0, y: 4)
     }
 }
 
 struct GlassShadow: ViewModifier {
     let ySize: CGFloat
-    static let dropShadowColor: Color = Color(red: 224 / 255, green: 224 / 255, blue: 224 / 255) // #E0E0E0
+    static let dropShadowColor: Color = .grey200
     
     init(_ ySize: CGFloat) {
         self.ySize = ySize
@@ -56,7 +56,7 @@ struct GlassShadow: ViewModifier {
 
 struct PauseGlassShadow: ViewModifier {
     let ySize: CGFloat
-    static let dropShadowColor: Color = Color(#colorLiteral(red: 0.6980392157, green: 0.6980392157, blue: 0.6980392157, alpha: 1))
+    static let dropShadowColor: Color = .grey400
     
     init(_ ySize: CGFloat) {
         self.ySize = ySize
