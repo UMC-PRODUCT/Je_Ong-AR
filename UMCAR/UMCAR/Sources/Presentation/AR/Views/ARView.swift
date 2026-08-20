@@ -70,15 +70,10 @@ struct ARView: View {
             gamePhase: $arViewModel.gamePhase,
             arError: $arViewModel.arError,
             currentDetectedPlanes: $arViewModel.currentDetectedPlanes,
-            currentLifeCounts: $arViewModel.currentLifeCounts,
-            currentGameScore: $arViewModel.currentGameScore,
-            numberOfFinishedCards: $arViewModel.numberOfFinishedCards,
             flippedCardId: $arViewModel.flippedCardId,
-            cardSubmissions: $arViewModel.cardSubmissions,
             triggerScanStart: $arViewModel.triggerScanStart,
             triggerCreatePortal: $arViewModel.triggerOpenPortal,
             triggerPlaceCards: $arViewModel.triggerPlaceCards,
-            triggerSubmitAccuracy: $arViewModel.triggerSubmitAccuracy,
             triggerFlipCard: $arViewModel.triggerFlipCard
         )
         .overlay {
@@ -91,21 +86,9 @@ struct ARView: View {
                 case .playing:
                     PlayingGameOverlay(arViewModel: arViewModel)
                         .environmentObject(container)
-                case .finished:
-                    if let selectedGameSession {
-                        FinishedOverlay(gameSessionModel: selectedGameSession, currentLifeCounts: arViewModel.currentLifeCounts)
-                    }
                 default:
                     EmptyView()
                 }
-            }
-        }
-        .onChange(of: arViewModel.numberOfFinishedCards) { _, newValue in
-            if newValue == gameCards.count {
-                arViewModel.gamePhase = .finished
-                
-                saveScore()
-                saveSuccessCount()
             }
         }
         .ignoresSafeArea()
@@ -113,47 +96,3 @@ struct ARView: View {
     }
 }
 
-extension ARView {
-    private func saveScore() {
-        guard let selectedGameSession,
-              let selectedLevel else { return }
-        
-        // 점수 저장
-        selectedGameSession.score = arViewModel.currentGameScore
-        modelContext.insert(selectedGameSession)
-        try? modelContext.save()
-        print("점수 저장 완료: \(arViewModel.currentGameScore)")
-        
-        // 레벨 저장
-        let bestScore = selectedLevel.bestScore
-        if arViewModel.currentGameScore > bestScore {
-            selectedLevel.bestScore = arViewModel.currentGameScore
-            print("최고 점수 갱신 완료: \(arViewModel.currentGameScore)")
-        }
-            
-        try? modelContext.save()
-    }
-    
-    private func saveSuccessCount() {
-        guard let selectedLevel else { return }
-        
-        let descriptor = FetchDescriptor<GameSessionModel>()
-        if let gameSessions = try? modelContext.fetch(descriptor) {
-            var allUsedCardIDs = Set<UUID>()
-            
-            gameSessions
-                .filter{ session in
-                    session.level.id == selectedLevel.id
-                }
-                .forEach { model in
-                    for usedCard in model.usedCards {
-                        let cardID = usedCard.card.id
-                        allUsedCardIDs.insert(cardID)
-                    }
-                }
-            
-            selectedLevel.successCount = allUsedCardIDs.count
-            try? modelContext.save()
-        }
-    }
-}

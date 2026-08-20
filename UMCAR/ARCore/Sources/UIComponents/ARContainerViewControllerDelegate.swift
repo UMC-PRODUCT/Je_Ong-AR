@@ -16,12 +16,4 @@ public protocol ARContainerViewControllerDelegate: AnyObject {
     /// 게임 페이즈가 변경되었을 때 호출되는 메서드
     /// 게임의 페이즈는 `gamePhase` 프로퍼티로 참조할 수 있다
     func didChangeGamePhase(_ arContainer: ARContainerViewController)
-    
-    /// 라이프 카운트가 변경되었을 때 호출되는 메서드
-    /// 현재 라이프 카운트는 `lifeCount` 프로퍼티로 참조할 수 있다
-    func didChangeLifeCount(_ arContainer: ARContainerViewController)
-    
-    /// 획득 점수가 변경되었을 때 호출되는 메서드
-    /// 점수는 `currentScore` 프로퍼티로 참조할 수 있다
-    func didChangeScore(_ arContainer: ARContainerViewController)
 }

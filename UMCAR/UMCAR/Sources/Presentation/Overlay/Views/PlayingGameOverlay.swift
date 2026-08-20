@@ -30,7 +30,6 @@ struct PlayingGameOverlay: View {
             Color.clear
         }
         .overlay(alignment: .topLeading, content: {
-            GameStatus(currentScore: $arViewModel.currentGameScore, currentCard: $arViewModel.numberOfFinishedCards, currentLife: $arViewModel.currentLifeCounts)
         })
         .overlay(alignment: .bottom, content: {
             bottonGuide

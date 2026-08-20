@@ -4,18 +4,12 @@ import ARCore
 public struct ContentView: View {
     @State var arError: Error?
     @State var currentDetectedPlanes: Int = 0
-    @State var currentLifeCounts: Int = 5
-    @State var currentGameScore: Int = 0
-    @State var numberOfFinishedCards: Int = 0
     @State var triggerScanStart = false
     @State var triggerCreatePortal = false
     @State var triggerPlaceCards = false
-    @State var triggerSubmitAccuracy: (UUID, Float)?
     @State var gamePhase: GamePhase = .initialized
     @State var triggerFlipCard = false
     @State var flippedCardId: UUID?
-    // ARContainer가 요구하는 바인딩. 이게 없어 데모 타깃이 컴파일되지 않는 상태였다.
-    @State var cardSubmissions: [UUID: GameCardSubmission] = [:]
     
     let gameCards: [GameCard] = [
         .init(
@@ -116,15 +110,10 @@ public struct ContentView: View {
                 gamePhase: $gamePhase,
                 arError: $arError,
                 currentDetectedPlanes: $currentDetectedPlanes,
-                currentLifeCounts: $currentLifeCounts,
-                currentGameScore: $currentGameScore,
-                numberOfFinishedCards: $numberOfFinishedCards,
                 flippedCardId: $flippedCardId,
-                cardSubmissions: $cardSubmissions,
                 triggerScanStart: $triggerScanStart,
                 triggerCreatePortal: $triggerCreatePortal,
                 triggerPlaceCards: $triggerPlaceCards,
-                triggerSubmitAccuracy: $triggerSubmitAccuracy,
                 triggerFlipCard: $triggerFlipCard
             )
             .ignoresSafeArea()
@@ -133,12 +122,6 @@ public struct ContentView: View {
                 Text("gamePhase: \(gamePhase)")
                 
                 Text("currentDetectedPlanes: \(currentDetectedPlanes)")
-                
-                Text("currentLifeCounts: \(currentLifeCounts)")
-                
-                Text("currentGameScore: \(currentGameScore)")
-                
-                Text("numberOfPassedCards: \(numberOfFinishedCards)")
                 
                 Button("스캔 시작") {
                     triggerScanStart = true
@@ -156,23 +139,7 @@ public struct ContentView: View {
                 }
                 .disabled(buttonDisabled)
                 
-                Button("단어 정답 제출 1") {
-                    if let id = gameCards.first?.id {
-                        triggerSubmitAccuracy = (
-                            id,
-                            0.6
-                        )
-                    }
-                }
                 
-                Button("단어 정답 제출 2") {
-                    if gameCards.count >= 2 {
-                        triggerSubmitAccuracy = (
-                            gameCards[1].id,
-                            0.3
-                        )
-                    }
-                }
                 
                 Button("카드 뒤집기") {
                     triggerFlipCard = true
