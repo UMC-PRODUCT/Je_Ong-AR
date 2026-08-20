@@ -54,9 +54,10 @@ MIN_EDGE = 10.0
 PLATE = (0.07, 0.375, 0.93, 0.575)
 
 # 카드 스타일.
-#   "icon"    — 아이콘이 주역 (기본). 배경 패턴은 인식용으로 남긴다
-#   "pattern" — 패턴이 주역, 로고는 판 안쪽 작게. 되돌릴 때 CARD_STYLE=pattern
-STYLE = os.environ.get("CARD_STYLE", "icon")
+#   "plain"   — 배경 없음. 아이콘 + 글자만 (기본)
+#   "icon"    — 아이콘 주역 + 인식용 배경 패턴
+#   "pattern" — 패턴이 주역, 로고는 판 안쪽 작게
+STYLE = os.environ.get("CARD_STYLE", "plain")
 
 # 패턴 대비를 얼마나 누를지. icon 스타일에서 배경을 "거의 단색처럼" 보이게 한다.
 # 0에 가까울수록 눈에 안 띄지만 ARKit이 쓸 휘도 진폭도 같이 줄어든다.
@@ -514,12 +515,14 @@ def draw_icon_layout(img, d, card, bg, ink):
                + size * 0.12 + (bbt_pre[3] - bbt_pre[1]))
     bx = size * 0.5
     by = size * 0.34
-    plate_col = (250, 250, 250) if not dark_bg else (14, 16, 18)
-    overlay = Image.new("RGBA", (CW, CH), (0, 0, 0, 0))
-    ImageDraw.Draw(overlay).rounded_rectangle(
-        [CW / 2 - block_w / 2 - bx, y - by, CW / 2 + block_w / 2 + bx, y + block_h + by],
-        radius=size * 0.28, fill=plate_col + (196,))
-    img.alpha_composite(overlay)
+    if STYLE != "plain":
+        # 배경이 있는 스타일에서만 판을 깐다. plain은 단색이라 그냥 읽힌다.
+        plate_col = (250, 250, 250) if not dark_bg else (14, 16, 18)
+        overlay = Image.new("RGBA", (CW, CH), (0, 0, 0, 0))
+        ImageDraw.Draw(overlay).rounded_rectangle(
+            [CW / 2 - block_w / 2 - bx, y - by, CW / 2 + block_w / 2 + bx, y + block_h + by],
+            radius=size * 0.28, fill=plate_col + (196,))
+        img.alpha_composite(overlay)
 
     for line in lines:
         bb = d.textbbox((0, 0), line, font=f)
@@ -641,27 +644,31 @@ def build(idx, card):
     img = Image.new("RGBA", (CW, CH), bg + (255,))
     d = ImageDraw.Draw(img)
 
-    composition_layer(d, rng, ink, bg)
-    PATTERNS[card["pattern"]](d, rng, ink, bg)
+    if STYLE != "plain":
+        composition_layer(d, rng, ink, bg)
+        PATTERNS[card["pattern"]](d, rng, ink, bg)
 
+    # plain은 배경을 비워두는 게 목적이라 주입하지 않는다.
     # 1단계: 판을 그리기 전에 카드 전면을 채운다.
     # 판 아래가 비어 있으면 반투명 판을 통해 그 공백이 그대로 비쳐서, 나중에 아무리
     # 주입해도 판 영역은 제외되므로 평평한 셀이 남는다. 그래서 먼저 전면을 메운다.
     whole = (0, 0, 0, 0)
-    for _ in range(3):
-        if inject_detail(d, rng, edge_energy_grid(img), ink, bg, whole) == 0:
-            break
+    if STYLE != "plain":
+        for _ in range(3):
+            if inject_detail(d, rng, edge_energy_grid(img), ink, bg, whole) == 0:
+                break
 
-    if STYLE == "icon":
+    if STYLE in ("icon", "plain"):
         plate = draw_icon_layout(img, d, card, bg, card["ink"])
     else:
         plate = draw_text_plate(img, d, card["name"], card["tag"], bg,
                                 logo_path=os.path.join(LOGO_DIR, f"{cid}.png"))
 
     # 2단계: 판을 올린 뒤 남은 공백을 메운다. 판 안쪽은 가독성 때문에 건드리지 않는다.
-    for _ in range(2):
-        if inject_detail(d, rng, edge_energy_grid(img), ink, bg, plate) == 0:
-            break
+    if STYLE != "plain":
+        for _ in range(2):
+            if inject_detail(d, rng, edge_energy_grid(img), ink, bg, plate) == 0:
+                break
 
     draw_orientation_marks(d, idx, ink, bg)
 
