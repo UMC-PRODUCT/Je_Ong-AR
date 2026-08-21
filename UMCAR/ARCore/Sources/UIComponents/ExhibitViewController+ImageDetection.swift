@@ -27,7 +27,7 @@ extension ExhibitViewController {
             }
             guard cardEntities[card.id] == nil else { continue }
 
-            let (hit, panel, _) = CardPanelBuilder.build(
+            let (hit, panel, highlight) = CardPanelBuilder.build(
                 cardID: card.id,
                 physicalSize: imageAnchor.referenceImage.physicalSize
             )
@@ -44,6 +44,7 @@ extension ExhibitViewController {
 
             cardEntities[card.id] = hit
             panelEntities[card.id] = panel
+            highlightEntities[card.id] = highlight
             applyPanelTexture(to: panel, card: card)
 
             if exhibitPhase == .scanning {

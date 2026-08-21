@@ -34,6 +34,15 @@ public class ExhibitViewController: UIViewController {
     /// 카드 id → 패널 엔티티
     var panelEntities: [String: ModelEntity] = [:]
     
+    /// 카드 id → 무지개 테두리 엔티티. 매 프레임 색을 흘려보내려고 들고 있는다
+    var highlightEntities: [String: ModelEntity] = [:]
+    
+    /// 테두리 애니메이션이 시작된 뒤 흐른 시간 (초).
+    ///
+    /// 프레임 수가 아니라 시간으로 센다. 인식 직후에는 프레임이 떨어지는데,
+    /// 프레임마다 일정량을 더하면 그때만 색이 느려져 눈에 띈다.
+    var highlightElapsed: TimeInterval = 0
+    
     /// 카드 id → 떨림 필터. ARKit 앵커에 직접 붙이지 않는 이유는 PoseSmoother 참고
     var poseSmoothers: [String: PoseSmoother] = [:]
     

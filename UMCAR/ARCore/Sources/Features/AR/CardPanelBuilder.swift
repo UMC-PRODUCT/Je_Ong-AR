@@ -38,9 +38,6 @@ enum CardPanelBuilder {
     /// 0이면 카드 평면과 겹쳐 z-fighting으로 깜빡인다.
     static let highlightLift: Float = 0.002
 
-    /// 테두리가 카드보다 얼마나 큰가. 실물 카드 가장자리를 감싸 보이게 한다.
-    static let highlightScale: Float = 1.12
-
     /// 세운 패널의 중심을 카드 평면에서 얼마나 띄울지 구한다.
     ///
     /// 기울이면 가까운 쪽 모서리가 `panelDepth/2 * sin(tilt)` 만큼 내려간다.
@@ -91,19 +88,20 @@ enum CardPanelBuilder {
         return (hit, panel, highlight)
     }
 
-    /// 카드를 감싸는 무지개 테두리. 텍스처를 못 만들면 nil을 주고 테두리 없이 간다.
+    /// 카드를 감싸는 무지개 테두리. 텍스처나 메시를 못 만들면 nil을 주고
+    /// 테두리 없이 간다.
+    ///
+    /// 모양은 띠 메시가, 색은 가로 스트립 텍스처가 갖는다. 색을 흘려보내는 일은
+    /// ExhibitViewController가 매 프레임 머티리얼만 갈아 끼워서 한다
+    /// (CardHighlightMaterial 참고).
     private static func makeHighlight(width: Float, depth: Float) -> ModelEntity? {
-        guard let texture = CardHighlightTexture.make() else { return nil }
-
-        var material = UnlitMaterial()
-        material.color = .init(tint: .white, texture: .init(texture))
-        // 텍스처의 알파를 그대로 쓴다. 안 그러면 테두리 안쪽이 흰 판으로 덮인다.
-        material.blending = .transparent(opacity: .init(scale: 1.0, texture: .init(texture)))
+        guard let textures = CardHighlightTexture.make(),
+              let mesh = CardHighlightRing.makeMesh(cardWidth: width, cardDepth: depth)
+        else { return nil }
 
         let entity = ModelEntity(
-            mesh: .generatePlane(width: width * highlightScale,
-                                 depth: depth * highlightScale),
-            materials: [material]
+            mesh: mesh,
+            materials: [CardHighlightMaterial.make(textures: textures, elapsed: 0)]
         )
         entity.position = [0, highlightLift, 0]      // +Y = 카드 법선
         return entity
