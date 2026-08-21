@@ -74,13 +74,4 @@ enum ButtonType {
             return type.btnSize.1
         }
     }
-    
-    var shadowColor: Color {
-        switch self {
-        case .text(let type):
-            return type.shadowColor
-        case .icon:
-            return .indigo700
-        }
-    }
 }

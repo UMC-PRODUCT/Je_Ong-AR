@@ -15,7 +15,7 @@ let project = Project(
             destinations: [.iPad],
             product: .app,
             bundleId: "app.umcar.UMCAR",
-            deploymentTargets: .iOS("18.0"),
+            deploymentTargets: .iOS("26.0"),
             infoPlist: .extendingDefault(
                 with: [
                     "CFBundleDisplayName": "유엠카",

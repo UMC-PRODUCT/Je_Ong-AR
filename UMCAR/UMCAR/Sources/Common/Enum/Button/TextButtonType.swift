@@ -53,13 +53,4 @@ enum TextButtonType {
     var btnHeight: CGFloat {
         return 87
     }
-    
-    var shadowColor: Color {
-        switch self {
-        case .cardSprinkle(let onOff), .openPotal(let onOff), .start(let onOff):
-            return onOff ? .indigo700 : .grey300
-        case .restart:
-            return .indigo700
-        }
-    }
 }
