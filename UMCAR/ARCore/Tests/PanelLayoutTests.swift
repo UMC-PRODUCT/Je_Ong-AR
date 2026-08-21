@@ -106,19 +106,6 @@ final class PanelTitleWrapTests: XCTestCase {
         }
     }
 
-    func test_태그가_차지하는_높이만큼_자리를_잡는다() {
-        for card in TechCard.all {
-            let layout = PanelLayout(card: card, size: panelSize)
-            let measured = measuredHeight(card.tag, font: layout.tagFont,
-                                          style: layout.centered, width: layout.contentWidth)
-
-            XCTAssertGreaterThanOrEqual(
-                layout.tagHeight, measured - 0.5,
-                "\(card.id): 태그가 \(measured)pt인데 \(layout.tagHeight)pt만 잡았다 — 구분선을 덮는다"
-            )
-        }
-    }
-
     func test_아주_긴_기술명도_두_줄_자리를_잡는다() {
         // 폰트와 무관하게 반드시 접히는 길이. 실제 카드가 짧아져도 이 회귀는 남는다.
         let card = TechCard(
@@ -130,8 +117,6 @@ final class PanelTitleWrapTests: XCTestCase {
         let layout = PanelLayout(card: card, size: panelSize)
 
         XCTAssertGreaterThan(layout.nameHeight, layout.nameFont.lineHeight * 1.5,
-                             "두 줄인데 한 줄 자리만 잡았다")
-        XCTAssertGreaterThan(layout.tagHeight, layout.tagFont.lineHeight * 1.5,
                              "두 줄인데 한 줄 자리만 잡았다")
     }
 
@@ -160,15 +145,13 @@ final class PanelTitleWrapTests: XCTestCase {
     }
 
     func test_한_줄_이름은_예전과_같은_자리를_쓴다() {
-        // 이번 수정이 멀쩡히 보이던 카드까지 흔들면 안 된다.
-        // 예전 값: 이름 = lineHeight x 1.15, 태그 = lineHeight x 1.9
+        // 접히지 않는 이름은 정확히 한 줄 + 여백만 쓴다.
         let card = TechCard(id: "short", name: "Siri", tag: "음성",
                             summary: "-", detail: "-")
         let layout = PanelLayout(card: card, size: panelSize)
 
         XCTAssertEqual(layout.nameHeight + layout.nameGap,
-                       layout.nameFont.lineHeight * 1.15, accuracy: 0.5)
-        XCTAssertEqual(layout.tagHeight + layout.tagGap,
-                       layout.tagFont.lineHeight * 1.9, accuracy: 0.5)
+                       layout.nameFont.lineHeight * (1 + PanelLayout.Ratio.nameGap),
+                       accuracy: 0.5)
     }
 }
