@@ -34,13 +34,49 @@ actor CardContentImageProvider {
         self.imageCache = imageCache
     }
     
+    /// 구워둔 패널 PNG의 판본.
+    ///
+    /// **패널 생김새를 바꾸면 반드시 올려야 한다.** 굽는 비용을 아끼려고 결과를
+    /// Documents에 남기는데, 프로바이더는 파일이 있으면 내용을 안 보고 그냥 읽는다.
+    /// Documents는 앱 업데이트에도 살아남으므로, 판본이 없으면 레이아웃을 고쳐도
+    /// 이미 설치된 아이패드에서는 **영원히 옛 패널이 뜬다** — 앱을 지우기 전까지.
+    /// 실제로 태그 겹침을 고친 뒤에도 기기에서 그대로 보였다.
+    ///
+    /// 판본이 디렉토리 이름에 들어가므로, 올리는 순간 옛 PNG는 안 읽히고 새로 굽는다.
+    ///
+    /// - 1: 최초 (로고 / 기술명 / 태그 / 본문)
+    /// - 2: 태그 제거, 기술명 높이를 실측
+    public static let layoutVersion = 2
+
+    /// 이번 판본의 텍스처가 사는 곳
+    static func texturesURL() -> URL {
+        let documentsURL = FileManager.default
+            .urls(for: .documentDirectory, in: .userDomainMask)[0]
+        return documentsURL.appending(path: "textures-v\(layoutVersion)")
+    }
+
+    /// 지난 판본이 남긴 디렉토리를 지운다.
+    ///
+    /// 안 지우면 판본을 올릴 때마다 9장씩(장당 수 MB) 쌓인다. 실패해도 무시한다 —
+    /// 청소를 못 했다고 전시를 멈출 이유는 없다.
+    static func removeStaleTextures() {
+        let fileManager = FileManager.default
+        let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let current = texturesURL().lastPathComponent
+
+        let contents = try? fileManager.contentsOfDirectory(
+            at: documentsURL, includingPropertiesForKeys: nil
+        )
+        for url in contents ?? [] where url.lastPathComponent.hasPrefix("textures")
+            && url.lastPathComponent != current {
+            try? fileManager.removeItem(at: url)
+        }
+    }
+
     init(allCards: [TechCard], imageCache: CardContentImageCache? = nil) {
-        let baseURL: URL = {
-            let fileManager = FileManager.default
-            let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            return documentsURL.appending(path: "textures")
-        }()
-        
+        Self.removeStaleTextures()
+        let baseURL = Self.texturesURL()
+
         self.init(
             reader: CardContentImageReader(baseURL: baseURL),
             writer: CardContentImageWriter(baseURL: baseURL),

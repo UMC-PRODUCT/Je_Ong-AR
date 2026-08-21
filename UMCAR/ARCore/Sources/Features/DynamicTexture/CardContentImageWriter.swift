@@ -19,8 +19,6 @@ private enum PanelPalette {
     static let title = UIColor(red: 0x3A / 255, green: 0x5A / 255, blue: 0xD9 / 255, alpha: 1)
     /// indigo200 — 구분선
     static let divider = UIColor(red: 0xCC / 255, green: 0xD6 / 255, blue: 0xFF / 255, alpha: 1)
-    /// grey600 — 태그
-    static let tag = UIColor(red: 0x6D / 255, green: 0x78 / 255, blue: 0x82 / 255, alpha: 1)
     /// grey800 — 설명 문단
     static let detail = UIColor(red: 0x34 / 255, green: 0x36 / 255, blue: 0x3E / 255, alpha: 1)
 }
@@ -84,7 +82,10 @@ class CardContentImageWriter {
     
     /// 패널에 그릴 이미지를 만든다.
     ///
-    /// 세로 구성 — 로고 / 기술명 / 태그 / 설명 문단. 치수는 PanelLayout이 쥔다.
+    /// 세로 구성 — 로고 / 기술명 / 설명 문단. 치수는 PanelLayout이 쥔다.
+    ///
+    /// 태그("초광대역 정밀 측위" 같은 한 줄 요약)는 뺐다. 기술명 바로 아래 붙어
+    /// 있어서 긴 이름이 접히면 제일 먼저 가려졌고, 없어도 본문이 같은 말을 한다.
     private func imageFrom(card: TechCard, size: CGSize) -> Data {
         let layout = PanelLayout(card: card, size: size)
         let renderer = UIGraphicsImageRenderer(size: size)
@@ -118,16 +119,6 @@ class CardContentImageWriter {
                                width: layout.contentWidth,
                                height: layout.nameHeight))
             y += layout.nameHeight + layout.nameGap
-
-            // 태그
-            NSAttributedString(string: card.tag, attributes: [
-                .font: layout.tagFont,
-                .paragraphStyle: layout.centered,
-                .foregroundColor: PanelPalette.tag,
-            ]).draw(in: CGRect(x: layout.margin, y: y,
-                               width: layout.contentWidth,
-                               height: layout.tagHeight))
-            y += layout.tagHeight + layout.tagGap
 
             // 구분선
             PanelPalette.divider.setFill()

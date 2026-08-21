@@ -22,7 +22,6 @@ struct PanelLayout {
     enum Ratio {
         static let logoWidth: CGFloat = 0.26
         static let name: CGFloat = 0.095
-        static let tag: CGFloat = 0.050
         static let detail: CGFloat = 0.047
 
         static let margin: CGFloat = 0.08
@@ -52,7 +51,6 @@ struct PanelLayout {
     let contentWidth: CGFloat
     let logoSide: CGFloat
     let nameFont: UIFont
-    let tagFont: UIFont
     let detailFont: UIFont
 
     /// 기술명이 실제로 차지하는 높이. 두 줄로 접히면 그만큼 커진다.
@@ -60,12 +58,6 @@ struct PanelLayout {
 
     /// 기술명 아래 여백
     let nameGap: CGFloat
-
-    /// 태그가 실제로 차지하는 높이
-    let tagHeight: CGFloat
-
-    /// 태그 아래 여백
-    let tagGap: CGFloat
 
     let detailHeight: CGFloat
     let totalHeight: CGFloat
@@ -77,14 +69,11 @@ struct PanelLayout {
         contentWidth = size.width - margin * 2
         logoSide = size.width * Ratio.logoWidth
 
-        // 기술명·태그는 한 줄에 세운다. 카드마다 이름 길이가 제각각이라
-        // 고정 크기로 두면 긴 이름만 접히고, 접힌 줄이 아래 요소를 밀어낸다.
+        // 기술명은 한 줄에 세운다. 카드마다 이름 길이가 제각각이라 고정 크기로
+        // 두면 긴 이름만 접히고, 접힌 줄이 아래 요소를 밀어낸다.
         nameFont = Self.fitted(card.name,
                                base: UIFont.arCoreTitle.withSize(size.height * Ratio.name),
                                width: contentWidth)
-        tagFont = Self.fitted(card.tag,
-                              base: UIFont.arCoreSubtitle.withSize(size.height * Ratio.tag),
-                              width: contentWidth)
         detailFont = UIFont.arCoreSubtitle.withSize(size.height * Ratio.detail)
 
         let centeredStyle = NSMutableParagraphStyle()
@@ -104,17 +93,11 @@ struct PanelLayout {
         nameHeight = max(nameFont.lineHeight,
                          Self.height(of: card.name, font: nameFont,
                                      style: centeredStyle, width: contentWidth))
-        tagHeight = max(tagFont.lineHeight,
-                        Self.height(of: card.tag, font: tagFont,
-                                    style: centeredStyle, width: contentWidth))
-
         nameGap = nameFont.lineHeight * Ratio.nameGap
-        tagGap = tagFont.lineHeight * Ratio.tagGap
 
         totalHeight = logoSide
             + size.height * Ratio.logoGap
             + nameHeight + nameGap
-            + tagHeight + tagGap
             + size.height * Ratio.ruleGap
             + detailHeight
     }
