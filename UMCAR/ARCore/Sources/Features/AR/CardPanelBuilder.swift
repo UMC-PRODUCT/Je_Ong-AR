@@ -80,7 +80,7 @@ enum CardPanelBuilder {
 
         hit.addChild(panel)
 
-        let highlight = makeHighlight(width: width, depth: depth)
+        let highlight = makeHighlight(cardWidth: width)
         if let highlight {
             hit.addChild(highlight)
         }
@@ -88,15 +88,21 @@ enum CardPanelBuilder {
         return (hit, panel, highlight)
     }
 
-    /// 카드를 감싸는 무지개 테두리. 텍스처나 메시를 못 만들면 nil을 주고
+    /// 인쇄된 아이콘을 감싸는 무지개 테두리. 텍스처나 메시를 못 만들면 nil을 주고
     /// 테두리 없이 간다.
+    ///
+    /// **정사각형이다.** 카드는 90:127이지만 인쇄물은 흰 종이에 정사각형 아이콘
+    /// 하나뿐이라, 카드 외곽을 그리면 위아래로 빈 종이를 2.4cm씩 감싼다. 아이콘이
+    /// 카드 정중앙에 있어서 위치 보정 없이 한 변만 환산하면 된다
+    /// (CardHighlightRing.artworkSide 참고).
     ///
     /// 모양은 띠 메시가, 색은 가로 스트립 텍스처가 갖는다. 색을 흘려보내는 일은
     /// ExhibitViewController가 매 프레임 머티리얼만 갈아 끼워서 한다
     /// (CardHighlightMaterial 참고).
-    private static func makeHighlight(width: Float, depth: Float) -> ModelEntity? {
+    private static func makeHighlight(cardWidth: Float) -> ModelEntity? {
+        let side = cardWidth * CardHighlightRing.artworkSide
         guard let textures = CardHighlightTexture.make(),
-              let mesh = CardHighlightRing.makeMesh(cardWidth: width, cardDepth: depth)
+              let mesh = CardHighlightRing.makeMesh(cardWidth: side, cardDepth: side)
         else { return nil }
 
         let entity = ModelEntity(

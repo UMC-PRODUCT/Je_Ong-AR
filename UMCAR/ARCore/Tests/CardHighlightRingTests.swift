@@ -98,8 +98,8 @@ final class CardHighlightRingTests: XCTestCase {
                        accuracy: 1e-5)
     }
 
-    func test_밝은_선이_카드_가장자리에_얹힌다() {
-        // 여백·두께·선 위치 셋이 어긋나면 선이 카드 그림을 덮거나 액자처럼 뜬다.
+    func test_밝은_선이_감싸는_대상의_가장자리에_얹힌다() {
+        // 여백·두께·선 위치 셋이 어긋나면 선이 그림을 덮거나 액자처럼 뜬다.
         let geometry = makeGeometry()
         let outerReach = stride(from: 0, to: geometry.positions.count, by: 2)
             .map { abs(geometry.positions[$0].x) }.max() ?? 0
@@ -107,6 +107,17 @@ final class CardHighlightRingTests: XCTestCase {
         let lineReach = outerReach - band * CardHighlightTexture.linePosition
 
         XCTAssertEqual(lineReach, cardWidth / 2, accuracy: cardWidth * 0.05)
+    }
+
+    func test_아이콘_칸은_레퍼런스_이미지_실측값이다() {
+        // 레퍼런스 이미지 9장 실측: 1062x1500 px 안에서 아이콘 칸이 935x935 px.
+        // 이 값이 흔들리면 테두리가 아이콘을 덮거나 종이 여백까지 감싼다.
+        XCTAssertEqual(CardHighlightRing.artworkSide * 1062, 935, accuracy: 0.5)
+
+        // 9cm 카드에서 7.93cm. 카드 세로(12.7cm)보다 한참 작아야 정사각형이 의미 있다.
+        let side = cardWidth * CardHighlightRing.artworkSide
+        XCTAssertEqual(side, 0.0792, accuracy: 0.001)
+        XCTAssertLessThan(side, cardDepth)
     }
 
     func test_모서리_반지름이_띠_두께에_눌리지_않는다() {
