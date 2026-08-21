@@ -105,15 +105,19 @@ class CardContentImageWriter {
                                  width: layout.logoSide, height: layout.logoSide))
             y += layout.logoSide + size.height * PanelLayout.Ratio.logoGap
 
-            // 기술명
+            // 기술명.
+            //
+            // 그리는 상자 높이와 다음 요소로 내려가는 거리는 **같은 값이어야 한다.**
+            // 예전에는 두 줄 들어갈 상자에 그려놓고 한 줄 남짓만 내려가서, 이름이
+            // 접히는 카드에서 둘째 줄이 태그와 구분선 위에 겹쳐 찍혔다.
             NSAttributedString(string: card.name, attributes: [
                 .font: layout.nameFont,
                 .paragraphStyle: layout.centered,
                 .foregroundColor: PanelPalette.title,
             ]).draw(in: CGRect(x: layout.margin, y: y,
                                width: layout.contentWidth,
-                               height: layout.nameFont.lineHeight * 2.2))
-            y += layout.nameFont.lineHeight * PanelLayout.Ratio.nameLead
+                               height: layout.nameHeight))
+            y += layout.nameHeight + layout.nameGap
 
             // 태그
             NSAttributedString(string: card.tag, attributes: [
@@ -122,8 +126,8 @@ class CardContentImageWriter {
                 .foregroundColor: PanelPalette.tag,
             ]).draw(in: CGRect(x: layout.margin, y: y,
                                width: layout.contentWidth,
-                               height: layout.tagFont.lineHeight * 1.6))
-            y += layout.tagFont.lineHeight * PanelLayout.Ratio.tagLead
+                               height: layout.tagHeight))
+            y += layout.tagHeight + layout.tagGap
 
             // 구분선
             PanelPalette.divider.setFill()
