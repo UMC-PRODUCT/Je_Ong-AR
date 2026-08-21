@@ -12,7 +12,6 @@ struct MainButton: View {
     // MARK: - Property
     let buttonType: ButtonType
     let action: () -> Void
-    let shadowOffset: CGFloat
     
     // MARK: - Constants
     fileprivate enum MainButtonConstant {
@@ -20,27 +19,22 @@ struct MainButton: View {
     }
     
     // MARK: - Init
-    init(buttonType: ButtonType, action: @escaping () -> Void, shadowOffset: CGFloat) {
+    init(buttonType: ButtonType, action: @escaping () -> Void) {
         self.buttonType = buttonType
         self.action = action
-        self.shadowOffset = shadowOffset
     }
     
     // MARK: - Body
     var body: some View {
-        Button(action: {
-            action()
-        }, label: {
-            ZStack {
-                RoundedRectangle(cornerRadius: MainButtonConstant.cornerRadius)
-                    .fill(buttonType.bgColor)
-                    .frame(maxWidth: buttonType.width == nil ? .infinity : nil)
-                    .frame(width: buttonType.width, height: buttonType.height)
-                    .mainButtonShadow(shadowColor: buttonType.shadowColor, yOffset: shadowOffset)
-                
-                buttonStyle
-            }
-        })
+        Button(action: action) {
+            buttonStyle
+                .frame(width: buttonType.width, height: buttonType.height)
+                .mainButtonGlass(
+                    tint: buttonType.bgColor,
+                    cornerRadius: MainButtonConstant.cornerRadius
+                )
+        }
+        .buttonStyle(.plain)
     }
     
     // MARK: - ButtonStyle
@@ -62,7 +56,6 @@ struct MainButton: View {
         Text(type.text)
             .font(type.font)
             .foregroundStyle(type.color)
-            .frame(height: type.btnHeight)
     }
     
     /// 이미지 뷰 반환
@@ -70,7 +63,7 @@ struct MainButton: View {
     /// - Returns: 뷰 반환
     private func imaegView(type: IconButtonType) -> some View {
         // 아이콘 PDF 는 옛 초록(#416D3D) 단색 글리프다. 템플릿으로 뽑아
-        // 인디고 버튼 위에서 흰색으로 찍는다 — 에셋을 다시 그릴 필요가 없다.
+        // 인디고 유리 위에서 흰색으로 찍는다 — 에셋을 다시 그릴 필요가 없다.
         Image(type.image)
             .renderingMode(.template)
             .foregroundStyle(Color.grey000)

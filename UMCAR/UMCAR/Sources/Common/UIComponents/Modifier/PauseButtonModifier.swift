@@ -17,7 +17,7 @@ struct PauseButtonModifier: ViewModifier {
             .overlay(alignment: .topTrailing) {
                 MainButton(buttonType: .icon(.pause), action: {
                     showExitOption = true
-                }, shadowOffset: 6)
+                })
                 .safeAreaPadding(.top, UIConstants.topPadding)
                 .safeAreaPadding(.trailing, UIConstants.naviLeadingPadding)
             }

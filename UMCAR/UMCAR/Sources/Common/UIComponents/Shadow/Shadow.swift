@@ -8,17 +8,6 @@
 import Foundation
 import SwiftUI
 
-struct MainButtonShadow: ViewModifier {
-    
-    let shadowColor: Color
-    let yOffset: CGFloat
-    
-    func body(content: Content) -> some View {
-        content
-            .shadow(color: shadowColor, radius: 0, x: 0, y: yOffset)
-    }
-}
-
 struct WhiteButtonShadow: ViewModifier {
     func body(content: Content) -> some View {
         content
@@ -70,10 +59,6 @@ struct PauseGlassShadow: ViewModifier {
 
 
 extension View {
-    func mainButtonShadow(shadowColor: Color, yOffset: CGFloat) -> some View {
-        self.modifier(MainButtonShadow(shadowColor: shadowColor, yOffset: yOffset))
-    }
-    
     func whiteShadow() -> some View {
         self.modifier(WhiteButtonShadow())
     }
