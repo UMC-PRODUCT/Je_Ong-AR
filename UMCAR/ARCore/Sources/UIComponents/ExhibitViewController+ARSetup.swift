@@ -31,6 +31,9 @@ extension ExhibitViewController {
             .receivesLighting
         ]
         
+        // 테두리 색을 흘려보내는 구독. 카드가 잡히기 전부터 돌려둔다.
+        startHighlightAnimation()
+        
         // 카메라 프리뷰만 먼저 띄운다. 이미지 인식은 startScanning()에서 켠다.
         //
         // 인식을 여기서 켜면 시작 버튼을 누르기 전에 앵커가 도착한다. ARKit은

@@ -42,6 +42,21 @@ final class CardPanelBuilderTests: XCTestCase {
         XCTAssertEqual(extents.z, Float(cardSize.height), accuracy: 1e-4)
     }
 
+    func test_테두리는_아이콘을_감싸는_정사각형이다() throws {
+        // 카드는 90:127이지만 인쇄물은 흰 종이에 정사각형 아이콘 하나뿐이다.
+        // 카드 외곽을 그리면 위아래로 빈 종이를 2.4cm씩 감싼다.
+        let (_, _, highlight) = CardPanelBuilder.build(cardID: "coreml", physicalSize: cardSize)
+        let extents = try XCTUnwrap(try XCTUnwrap(highlight).model?.mesh.bounds.extents)
+
+        XCTAssertEqual(extents.x, extents.z, accuracy: 1e-4, "정사각형이 아니다")
+        XCTAssertLessThan(extents.z, Float(cardSize.height), "카드 세로를 넘으면 종이를 감싼다")
+
+        // 띠 바깥 모서리까지 포함한 크기
+        let side = Float(cardSize.width) * CardHighlightRing.artworkSide
+        let expected = side + side * CardHighlightRing.outerMargin * 2
+        XCTAssertEqual(extents.x, expected, accuracy: 1e-4)
+    }
+
     func test_세운_패널의_아래_모서리가_카드_평면을_뚫지_않는다() throws {
         let panel = try makePanel()
 
