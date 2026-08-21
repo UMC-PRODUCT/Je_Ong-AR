@@ -22,12 +22,33 @@ final class CardHighlightTextureTests: XCTestCase {
         XCTAssertTrue(first.glow === second.glow)
     }
 
-    func test_번짐은_띠_가운데가_가장_밝다() {
-        let center = CardHighlightTexture.glowProfile(at: 0.5)
-        XCTAssertEqual(center, 1.0, accuracy: 0.001)
-        XCTAssertGreaterThan(center, CardHighlightTexture.glowProfile(at: 0.35))
-        XCTAssertGreaterThan(CardHighlightTexture.glowProfile(at: 0.35),
-                             CardHighlightTexture.glowProfile(at: 0.2))
+    func test_번짐은_선_자리에서_가장_밝다() {
+        let line = CardHighlightTexture.linePosition
+        let peak = CardHighlightTexture.glowProfile(at: line)
+        XCTAssertEqual(peak, 1.0, accuracy: 0.02)
+
+        for v in stride(from: Float(0.02), through: 0.98, by: 0.02) {
+            XCTAssertLessThanOrEqual(CardHighlightTexture.glowProfile(at: v), peak + 0.0001)
+        }
+    }
+
+    func test_번짐은_선에서_멀어질수록_단조롭게_어두워진다() {
+        // 어디선가 다시 밝아지면 평행선 두 개로 보인다. 흰 심지를 없앤 이유다.
+        let line = CardHighlightTexture.linePosition
+
+        var previous = CardHighlightTexture.glowProfile(at: line)
+        for v in stride(from: line, through: 1.0, by: 0.01) {
+            let current = CardHighlightTexture.glowProfile(at: v)
+            XCTAssertLessThanOrEqual(current, previous + 0.0001, "안쪽 v=\(v)에서 다시 밝아졌다")
+            previous = current
+        }
+
+        previous = CardHighlightTexture.glowProfile(at: line)
+        for v in stride(from: line, through: 0.0, by: -0.01) {
+            let current = CardHighlightTexture.glowProfile(at: v)
+            XCTAssertLessThanOrEqual(current, previous + 0.0001, "바깥쪽 v=\(v)에서 다시 밝아졌다")
+            previous = current
+        }
     }
 
     func test_번짐은_띠_끝에서_완전히_사라진다() {
@@ -36,11 +57,22 @@ final class CardHighlightTextureTests: XCTestCase {
         XCTAssertEqual(CardHighlightTexture.glowProfile(at: 1), 0, accuracy: 0.0001)
     }
 
-    func test_번짐은_안팎이_대칭이다() {
-        for v in stride(from: Float(0), through: 0.5, by: 0.05) {
-            XCTAssertEqual(CardHighlightTexture.glowProfile(at: v),
-                           CardHighlightTexture.glowProfile(at: 1 - v),
-                           accuracy: 0.0001)
+    func test_번짐은_바깥쪽으로_더_넓게_퍼진다() {
+        // 빛은 테이블 쪽으로 새어나가고 카드 그림은 덜 덮어야 한다.
+        let line = CardHighlightTexture.linePosition
+        let step: Float = 0.1
+        XCTAssertGreaterThan(CardHighlightTexture.glowProfile(at: line - step),
+                             CardHighlightTexture.glowProfile(at: line + step))
+    }
+
+    func test_팔레트는_고리처럼_이어진다() {
+        // 시작색과 끝색이 다르면 이음매에서 색이 한 칸 만에 튄다.
+        let start = CardHighlightTexture.paletteColor(at: 0)
+        let end = CardHighlightTexture.paletteColor(at: 1)
+        let almost = CardHighlightTexture.paletteColor(at: 0.999)
+        for channel in 0..<3 {
+            XCTAssertEqual(start[channel], end[channel], accuracy: 0.0001)
+            XCTAssertEqual(start[channel], almost[channel], accuracy: 0.02)
         }
     }
 }

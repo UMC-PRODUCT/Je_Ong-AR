@@ -32,14 +32,23 @@ enum CardHighlightRing {
     }
 
     /// 띠의 바깥 모서리가 카드 밖으로 나가는 거리 (카드 폭 대비).
-    /// 실물 카드 가장자리를 감싸 보이게 한다.
-    static let outerMargin: Float = 0.07
+    ///
+    /// 두께·선 위치(CardHighlightTexture.linePosition)와 짝을 이뤄, 밝은 선이
+    /// 실물 카드 가장자리 바로 바깥(카드 폭의 2%)에 얹히도록 잡았다. 셋 중
+    /// 하나만 바꾸면 선이 카드 안으로 파고들거나 액자처럼 떠버린다.
+    static let outerMargin: Float = 0.144
 
-    /// 띠 두께 (카드 폭 대비). 번짐이 여기 안에서 다 사라져야 해서 선보다 두껍다.
-    static let bandWidth: Float = 0.13
+    /// 띠 두께 (카드 폭 대비).
+    ///
+    /// 번짐이 이 안에서 다 사라져야 해서 눈에 보이는 선보다 훨씬 두껍다.
+    /// 실제로 보이는 건 두께의 5% 남짓인 심지뿐이고 나머지는 번짐이다.
+    static let bandWidth: Float = 0.20
 
-    /// 띠 중심선의 모서리 둥글기 (카드 폭 대비)
-    static let cornerRadius: Float = 0.085
+    /// 띠 중심선의 모서리 둥글기 (카드 폭 대비).
+    ///
+    /// 실물 카드 모서리(약 0.06)보다 넉넉하다. 빛은 각을 세우지 않는다 —
+    /// 카드와 똑같이 맞추면 형광펜으로 덧그린 윤곽선처럼 보인다.
+    static let cornerRadius: Float = 0.13
 
     /// 모서리 하나를 몇 조각으로 나눌지. 12면 90도를 7.5도씩 끊는다.
     static let cornerSteps = 12

@@ -69,23 +69,27 @@ enum CardHighlightTexture {
     /// 테두리를 한 바퀴 도는 색. 마지막이 처음과 같아야 이음매가 안 보인다.
     ///
     /// 무지개지만 순수 HSV 는 아니다. 애플 인텔리전스 쪽 색은 형광 초록·노랑이
-    /// 거의 없고 분홍-보라-파랑-청록이 넓게 깔린다. 초록 구간은 좁게 지나가고
-    /// 채도를 낮춰서, 무지개로 읽히되 색종이처럼 보이지 않게 했다.
+    /// 거의 없고 분홍-마젠타-보라-파랑-청록이 넓게 깔린다.
+    ///
+    /// **초록·골드를 좁혔다.** 균등한 색상환으로 돌리면 초록·노랑 구간이 한 변을
+    /// 통째로 차지해서 무지개 깃발처럼 읽혔다. 지금은 냉색(분홍→시안)이 둘레의
+    /// 약 2/3, 초록·골드가 1/6이다.
     private static let stops: [(t: Float, rgb: SIMD3<Float>)] = [
-        (0.00, .init(1.00, 0.23, 0.50)),   // 핑크
-        (0.08, .init(1.00, 0.42, 0.29)),   // 코랄
-        (0.17, .init(1.00, 0.66, 0.24)),   // 앰버
-        (0.25, .init(0.96, 0.82, 0.29)),   // 골드
-        (0.34, .init(0.49, 0.88, 0.54)),   // 민트 (좁게 지나간다)
-        (0.44, .init(0.18, 0.83, 0.78)),   // 청록
-        (0.55, .init(0.21, 0.66, 1.00)),   // 파랑
-        (0.66, .init(0.36, 0.42, 1.00)),   // 인디고
-        (0.77, .init(0.61, 0.36, 1.00)),   // 보라
-        (0.88, .init(0.85, 0.30, 0.94)),   // 마젠타
-        (1.00, .init(1.00, 0.23, 0.50)),   // 핑크로 되돌아온다
+        (0.00, .init(1.00, 0.27, 0.55)),   // 핑크
+        (0.10, .init(0.93, 0.30, 0.82)),   // 마젠타
+        (0.21, .init(0.68, 0.38, 1.00)),   // 보라
+        (0.33, .init(0.40, 0.46, 1.00)),   // 인디고
+        (0.45, .init(0.22, 0.68, 1.00)),   // 파랑
+        (0.56, .init(0.22, 0.86, 0.93)),   // 시안
+        (0.65, .init(0.34, 0.88, 0.70)),   // 청록
+        (0.72, .init(0.62, 0.87, 0.50)),   // 초록 (좁게 지나간다)
+        (0.79, .init(0.97, 0.83, 0.40)),   // 골드 (좁게 지나간다)
+        (0.88, .init(1.00, 0.60, 0.32)),   // 주황
+        (0.95, .init(1.00, 0.40, 0.40)),   // 코랄
+        (1.00, .init(1.00, 0.27, 0.55)),   // 핑크로 되돌아온다
     ]
 
-    private static func paletteColor(at t: Float) -> SIMD3<Float> {
+    static func paletteColor(at t: Float) -> SIMD3<Float> {
         let x = t - floor(t)
         for i in 1..<stops.count where x <= stops[i].t {
             let lo = stops[i - 1], hi = stops[i]
@@ -98,44 +102,60 @@ enum CardHighlightTexture {
 
     // MARK: - 번짐 곡선
 
-    /// 심지의 폭. 좁을수록 가운데 흰 선이 가늘고 또렷하다.
-    private static let coreWidth: Float = 0.16
+    /// 밝은 선이 띠 안 어디에 있는지 (0 = 바깥 끝, 1 = 안쪽 끝).
+    ///
+    /// 0.5보다 크게 둬서 선을 바깥쪽으로 밀었다. 번짐이 카드 바깥(테이블)으로
+    /// 더 퍼지고 카드 그림은 덜 덮는다. CardHighlightRing의 여백·두께와 짝을
+    /// 이뤄 이 선이 실물 카드 가장자리에 얹힌다.
+    static let linePosition: Float = 0.62
 
-    /// 후광의 폭. 이게 애플 인텔리전스 특유의 "빛이 새어나오는" 느낌을 만든다.
-    private static let haloWidth: Float = 0.55
+    /// 선 자체의 굵기. 좁을수록 또렷한 광선이 된다.
+    private static let coreWidth: Float = 0.045
 
-    /// 후광이 심지 대비 얼마나 밝은지
-    private static let haloWeight: Float = 0.42
+    /// 선 바깥쪽 번짐 폭. 빛이 테이블로 새어나가는 쪽이라 넓다.
+    private static let outerBloom: Float = 0.34
+
+    /// 선 안쪽 번짐 폭. 카드 그림을 덮지 않게 좁다.
+    private static let innerBloom: Float = 0.16
+
+    /// 번짐이 선 대비 얼마나 밝은지
+    private static let bloomWeight: Float = 0.5
+
+    /// 띠 양 끝에서 0으로 사그라드는 구간의 폭 (v 단위)
+    private static let edgeFadeWidth: Float = 0.18
 
     /// 띠를 가로지르는 위치(v)에서의 불투명도.
     ///
-    /// 가운데가 가장 밝고 양쪽으로 사라진다. 마지막 `edgeFade`가 없으면 띠
-    /// 가장자리에 옅은 값이 남아 메시 경계가 실선으로 드러난다.
+    /// **선 하나 + 바깥으로 퍼지는 번짐**이다. 예전에는 띠 한가운데를 흰빛으로
+    /// 띄웠는데, 그 흰 심지가 색을 양옆으로 밀어내서 한 줄이 아니라 두 줄로
+    /// 보였다 — 실물 사진에서 평행선 두 개로 확인됐다. 흰 심지를 없애고
+    /// 채도를 그대로 살린다.
+    ///
+    /// 마지막 `edgeFade`가 없으면 띠 가장자리에 옅은 값이 남아 메시 경계가
+    /// 실선으로 드러난다. **띠 중심이 아니라 양 끝 기준으로 재야 한다** —
+    /// 중심 기준으로 깎으면 선이 중심에서 벗어나 있는 만큼 가장 밝은 지점이
+    /// 선에서 밀려나, 선 바깥에 미세하게 더 밝은 자리가 생긴다.
     static func glowProfile(at v: Float) -> Float {
-        let d = abs(v * 2 - 1)                      // 0 = 띠 한가운데, 1 = 띠 끝
-        let core = exp(-pow(d / coreWidth, 2))
-        let halo = exp(-pow(d / haloWidth, 2))
-        let edgeFade = max(0, 1 - pow(d, 3))
-        return min(1, core + halo * haloWeight) * edgeFade
-    }
+        let offset = v - linePosition
+        let core = exp(-pow(offset / coreWidth, 2))
+        let spread = offset < 0 ? outerBloom : innerBloom
+        let bloom = exp(-pow(offset / spread, 2)) * bloomWeight
 
-    /// 심지 쪽이 흰빛으로 뜨는 정도. 실제 발광체는 중심이 색을 잃고 하얘진다.
-    private static func coreWhiteness(at v: Float) -> Float {
-        let d = abs(v * 2 - 1)
-        return exp(-pow(d / coreWidth, 2)) * 0.5
+        let t = min(min(v, 1 - v) / edgeFadeWidth, 1)
+        let edgeFade = t * t * (3 - 2 * t)          // smoothstep
+
+        return min(1, core + bloom) * edgeFade
     }
 
     // MARK: - 렌더
 
     private static func renderColorStrip() -> CGImage? {
-        makeImage { x, y in
+        makeImage { x, _ in
             // width 로 나눈다 (width-1 이 아니라). 그래야 마지막 픽셀 다음이
             // 첫 픽셀과 이어져, 반복 샘플링해도 이음매가 안 생긴다.
             let u = Float(x) / Float(stripWidth)
-            let v = (Float(y) + 0.5) / Float(stripHeight)
-            let white = coreWhiteness(at: v)
-            let rgb = paletteColor(at: u) * (1 - white) + SIMD3<Float>(repeating: white)
-            return (rgb, 1)
+            // 색은 u에만 의존한다. 띠를 가로지르는 밝기는 전부 번짐 텍스처가 맡는다.
+            return (paletteColor(at: u), 1)
         }
     }
 

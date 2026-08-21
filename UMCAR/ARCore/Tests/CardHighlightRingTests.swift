@@ -98,6 +98,17 @@ final class CardHighlightRingTests: XCTestCase {
                        accuracy: 1e-5)
     }
 
+    func test_밝은_선이_카드_가장자리에_얹힌다() {
+        // 여백·두께·선 위치 셋이 어긋나면 선이 카드 그림을 덮거나 액자처럼 뜬다.
+        let geometry = makeGeometry()
+        let outerReach = stride(from: 0, to: geometry.positions.count, by: 2)
+            .map { abs(geometry.positions[$0].x) }.max() ?? 0
+        let band = cardWidth * CardHighlightRing.bandWidth
+        let lineReach = outerReach - band * CardHighlightTexture.linePosition
+
+        XCTAssertEqual(lineReach, cardWidth / 2, accuracy: cardWidth * 0.05)
+    }
+
     func test_모서리_반지름이_띠_두께에_눌리지_않는다() {
         // 중심선 반지름이 띠 두께의 절반보다 작으면 안쪽 윤곽이 뒤집혀 모서리가
         // 꼬인다. 카드가 아주 작아도(5cm) 성립해야 한다.
